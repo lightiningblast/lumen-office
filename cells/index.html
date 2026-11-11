@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen Cells</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#217346">
+<link rel="icon" href="../icons/cells-192.png">
+<link rel="stylesheet" href="../shared/common.css">
+<link rel="stylesheet" href="cells.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">X</div>
+  <input id="title" class="doc-title" value="Book1" spellcheck="false">
+  <span class="dirty" id="dirty"></span>
+  <div class="spacer"></div>
+  <a class="home" href="../index.html">&#8962; Lumen Office</a>
+  <button class="btn-text" id="btn-new">New</button>
+  <button class="btn-text" id="btn-open">Open</button>
+  <button class="btn-text" id="btn-save">Save</button>
+  <button class="btn-text" id="btn-saveas">Save as&hellip;</button>
+  <button class="btn-text" id="btn-csv">Export CSV</button>
+</header>
+<nav class="tabs">
+  <button class="tab active" data-tab="home">Home</button>
+  <button class="tab" data-tab="insert">Insert</button>
+  <button class="tab" data-tab="data">Data</button>
+  <button class="tab" data-tab="view">View</button>
+</nav>
+<section class="ribbon">
+  <div class="panel active" data-panel="home">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="b-undo" title="Undo (Ctrl+Z)">&#8630;</button>
+      <button class="btn" id="b-redo" title="Redo (Ctrl+Y)">&#8631;</button>
+    </div><div class="row">
+      <button class="btn" id="b-cut" title="Cut">&#9986;</button>
+      <button class="btn" id="b-copy" title="Copy">&#10064;</button>
+    </div></div><div class="label">Clipboard</div></div>
+    <div class="group"><div class="rows">
+      <div class="row">
+        <select id="f-name" style="width:120px"><option>Calibri</option><option>Arial</option><option>Times New Roman</option><option>Cambria</option><option>Georgia</option><option>Verdana</option><option>Tahoma</option><option>Segoe UI</option><option>Courier New</option><option>Consolas</option><option>Comic Sans MS</option></select>
+        <select id="f-size" style="width:56px"><option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>36</option><option>48</option></select>
+      </div>
+      <div class="row">
+        <button class="btn" data-fmt="b" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button class="btn" data-fmt="i" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button class="btn" data-fmt="u" title="Underline (Ctrl+U)"><u>U</u></button>
+        <button class="btn" data-fmt="s" title="Strikethrough"><s>ab</s></button>
+        <select id="f-border" title="Borders" style="width:76px"><option value="">Borders</option><option value="all">All</option><option value="outer">Outside</option><option value="bottom">Bottom</option><option value="top">Top</option><option value="left">Left</option><option value="right">Right</option><option value="none">None</option></select>
+        <span class="colorpick" title="Fill colour"><button class="btn" id="apply-fill"><span>&#9638;</span><i class="sw" id="sw-fill" style="background:#ffff00"></i></button><input type="color" id="fill" value="#ffff00"></span>
+        <span class="colorpick" title="Font colour"><button class="btn" id="apply-color"><span>A</span><i class="sw" id="sw-color" style="background:#c00000"></i></button><input type="color" id="color" value="#c00000"></span>
+        <button class="btn" id="b-nofill" title="No fill">&#8856;</button>
+      </div>
+    </div><div class="label">Font</div></div>
+    <div class="group"><div class="rows">
+      <div class="row">
+        <button class="btn" data-v="top" title="Top align">&#8613;</button>
+        <button class="btn" data-v="center" title="Middle align">&#8597;</button>
+        <button class="btn" data-v="bottom" title="Bottom align">&#8615;</button>
+        <button class="btn" id="b-wrap" title="Wrap text">&#8629; Wrap</button>
+      </div>
+      <div class="row">
+        <button class="btn" data-h="left" title="Align left"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/></svg></button>
+        <button class="btn" data-h="center" title="Center"><svg viewBox="0 0 16 16"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/></svg></button>
+        <button class="btn" data-h="right" title="Align right"><svg viewBox="0 0 16 16"><path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/></svg></button>
+        <button class="btn" id="b-merge" title="Merge &amp; center">Merge</button>
+        <button class="btn" id="b-unmerge" title="Unmerge cells">Unmerge</button>
+      </div>
+    </div><div class="label">Alignment</div></div>
+    <div class="group"><div class="rows">
+      <div class="row">
+        <select id="nf-select" style="width:130px">
+          <option value="General">General</option><option value="0">Number</option><option value="0.00">Number (2 dp)</option><option value="#,##0.00">Number with commas</option>
+          <option value="$#,##0.00">Currency</option><option value="0%">Percentage</option><option value="0.00%">Percentage (2 dp)</option>
+          <option value="m/d/yyyy">Short date</option><option value="dddd, mmmm d, yyyy">Long date</option><option value="yyyy-mm-dd">ISO date</option><option value="h:mm AM/PM">Time</option>
+          <option value="0.00E+00">Scientific</option><option value="@">Text</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="btn" id="nf-cur" title="Currency">$</button>
+        <button class="btn" id="nf-pct" title="Percent">%</button>
+        <button class="btn" id="nf-com" title="Comma style">,</button>
+        <button class="btn" id="nf-inc" title="Increase decimals">.0&rarr;</button>
+        <button class="btn" id="nf-dec" title="Decrease decimals">&larr;.0</button>
+      </div>
+    </div><div class="label">Number</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="cf-add" style="width:170px"><option value="">Conditional formatting&hellip;</option>
+        <optgroup label="Highlight cells"><option value=">">Greater than&hellip;</option><option value="<">Less than&hellip;</option><option value="between">Between&hellip;</option><option value="=">Equal to&hellip;</option><option value="text">Text&hellip;</option><option value="dup">Duplicate values&hellip;</option></optgroup>
+        <optgroup label="Top / bottom"><option value="top">Top items&hellip;</option><option value="bottom">Bottom items&hellip;</option></optgroup>
+        <optgroup label="Color scales"><option value="scale:gyr">Green-Yellow-Red</option><option value="scale:ryg">Red-Yellow-Green</option><option value="scale:wg">White-Green</option><option value="scale:wr">White-Red</option><option value="scale:wb">White-Blue</option></optgroup>
+        <optgroup label="Other"><option value="bar">Data bars</option><option value="expr">Custom formula&hellip;</option></optgroup>
+        <optgroup label="Rules"><option value="manage">Manage rules&hellip;</option><option value="clear-sel">Clear rules from selection</option><option value="clear-all">Clear all rules in sheet</option></optgroup>
+      </select>
+    </div></div><div class="label">Styles</div></div>
+    <div class="group"><div class="rows">
+      <div class="row">
+        <button class="btn" id="b-autosum" title="AutoSum">&Sigma; Sum</button>
+        <button class="btn" id="b-filld" title="Fill down (Ctrl+D)">&darr; Fill</button>
+        <button class="btn" id="b-fillr" title="Fill right (Ctrl+R)">&rarr; Fill</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="b-clear" title="Clear contents (Delete)">Clear</button>
+        <button class="btn" id="b-clearfmt" title="Clear formatting">Clear fmt</button>
+        <button class="btn" id="b-find" title="Find (Ctrl+F)">&#128269; Find</button>
+      </div>
+    </div><div class="label">Editing</div></div>
+  </div>
+
+  <div class="panel" data-panel="insert">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="i-row">Insert row above</button>
+      <button class="btn" id="i-col">Insert column left</button>
+    </div><div class="row">
+      <button class="btn" id="d-row">Delete rows</button>
+      <button class="btn" id="d-col">Delete columns</button>
+    </div></div><div class="label">Cells</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="s-add">New sheet</button>
+      <button class="btn" id="s-dup">Duplicate</button>
+    </div><div class="row">
+      <button class="btn" id="s-ren">Rename</button>
+      <button class="btn" id="s-del">Delete sheet</button>
+    </div></div><div class="label">Sheets</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="i-chart" style="width:150px"><option value="">Insert chart&hellip;</option><option value="col">Column</option><option value="bar">Bar</option><option value="line">Line</option><option value="area">Area</option><option value="pie">Pie</option></select>
+    </div><div class="row">
+      <button class="btn" id="c-del">Delete selected chart</button>
+    </div></div><div class="label">Charts (double-click a chart to edit)</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="tb-add" style="width:150px" title="Format the data around the selection as a table"><option value="">Table&hellip;</option><option value="TableStyleMedium2">Blue table</option><option value="TableStyleMedium3">Orange table</option><option value="TableStyleMedium4">Grey table</option><option value="TableStyleMedium5">Gold table</option><option value="TableStyleMedium6">Light blue table</option><option value="TableStyleMedium7">Green table</option><option value="TableStyleMedium1">Black table</option><option value="totals">Toggle total row</option><option value="range">Convert to range</option></select>
+    </div><div class="row">
+      <select id="sp-add" style="width:150px" title="Tiny charts inside cells"><option value="">Sparklines&hellip;</option><option value="line">Line</option><option value="column">Column</option><option value="stacked">Win/Loss</option><option value="clear">Clear from selection</option></select>
+    </div></div><div class="label">Tables &amp; sparklines</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="pv-make" title="Summarise data by category on a new sheet"><span class="ic">&#9638;</span>PivotTable</button>
+    </div></div><div class="rows"><div class="row"><button class="btn" id="pv-refresh" title="Refresh this PivotTable (Alt+F5)">&#8635; Refresh</button></div><div class="row"><button class="btn" id="pv-refresh-all" title="Refresh all PivotTables (Ctrl+Alt+F5)">Refresh all</button></div></div><div class="label">Summarise</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="i-func" style="width:150px"><option value="">Insert function&hellip;</option></select>
+    </div></div><div class="label">Functions</div></div>
+  </div>
+
+  <div class="panel" data-panel="data">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="sort-az"><span class="ic">A&darr;Z</span>Sort A&rarr;Z</button>
+      <button class="btn big" id="sort-za"><span class="ic">Z&darr;A</span>Sort Z&rarr;A</button>
+    </div></div><div class="label">Sort</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="flt-toggle"><span class="ic">&#9662;</span>Filter</button>
+      <button class="btn big" id="flt-reapply"><span class="ic">&#8635;</span>Reapply</button>
+    </div></div><div class="label">Filter</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="dv-edit"><span class="ic">&#9745;</span>Data validation</button>
+      <button class="btn big" id="dv-clear"><span class="ic">&#9746;</span>Clear validation</button>
+      <button class="btn big" id="dd-rm" title="Delete rows that repeat an earlier row"><span class="ic">&#8862;</span>Remove duplicates</button>
+      <button class="btn big" id="t2c" title="Split one column of text into several columns"><span class="ic">&#8677;</span>Text to columns</button>
+      <button class="btn big" id="gs-run" title="Find the input that makes a formula reach a target value"><span class="ic">&#127919;</span>Goal Seek</button>
+      <button class="btn big" id="solver-run" title="Maximise, minimise or hit a target by changing several cells, with constraints"><span class="ic">&#129518;</span>Solver</button>
+    </div></div><div class="label">Data tools</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="nm-edit"><span class="ic">&#9873;</span>Define name</button>
+      <button class="btn big" id="cm-edit"><span class="ic">&#128172;</span>New comment</button>
+      <button class="btn big" id="cm-del"><span class="ic">&#10060;</span>Delete comment</button>
+    </div></div><div class="label">Names &amp; comments</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="d-replace"><span class="ic">&#8646;</span>Replace</button>
+    </div></div><div class="label">Find</div></div>
+  </div>
+
+  <div class="panel" data-panel="view">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="v-freeze">Freeze at selection</button>
+      <button class="btn" id="v-freeze-row">Freeze top row</button>
+    </div><div class="row">
+      <button class="btn" id="v-freeze-col">Freeze first column</button>
+      <button class="btn" id="v-unfreeze">Unfreeze</button>
+    </div></div><div class="label">Freeze panes</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <label><input type="checkbox" id="v-grid" checked> Gridlines</label>
+    </div></div><div class="label">Show</div></div>
+  </div>
+</section>
+
+<div id="fbar">
+  <input id="namebox" spellcheck="false" value="A1">
+  <span class="fx">fx</span>
+  <input id="finput" spellcheck="false" autocomplete="off">
+</div>
+
+<main id="gridwrap">
+  <div id="scroller" tabindex="0"><div id="sizer"></div></div>
+  <canvas id="grid"></canvas>
+  <div id="charts"></div>
+  <textarea id="editor" spellcheck="false"></textarea>
+</main>
+<div id="sheettabs"><div id="tablist"></div><button id="addsheet" title="New sheet">+</button></div>
+<footer class="statusbar"><span id="st-msg">Ready</span><span class="spacer"></span><span id="st-sel"></span></footer>
+
+<script src="../shared/zip.js"></script>
+<script src="../shared/common.js"></script>
+<script src="numfmt.js"></script>
+<script src="formula.js"></script>
+<script src="chart.js"></script>
+<script src="condfmt.js"></script>
+<script src="validate.js"></script>
+<script src="xlsx.js"></script>
+<script src="sheet.js"></script>
+</body>
+</html>

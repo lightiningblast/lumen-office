@@ -1,0 +1,37 @@
+:root { --accent: #217346; --accent-dark: #185c37; --accent-light: #d7ecdf; }
+#fbar { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: #fff; border-bottom: 1px solid var(--line); flex: none; }
+#namebox { width: 96px; height: 26px; border: 1px solid #bbb; border-radius: 3px; padding: 0 6px; text-align: center; }
+#fbar .fx { color: #666; font-style: italic; font-family: serif; padding: 0 4px; }
+#finput { flex: 1; height: 26px; border: 1px solid #bbb; border-radius: 3px; padding: 0 8px; font-family: Consolas, 'Segoe UI', monospace; }
+#gridwrap { flex: 1; position: relative; overflow: hidden; background: #fff; min-height: 0; }
+#scroller { position: absolute; inset: 0; overflow: auto; outline: none; }
+#sizer { width: 1px; height: 1px; }
+#grid { position: absolute; left: 0; top: 0; pointer-events: none; }
+#charts { position: absolute; overflow: hidden; pointer-events: none; z-index: 3; }
+.chart { position: absolute; pointer-events: auto; box-shadow: 0 1px 6px rgba(0,0,0,.25); cursor: move; background: #fff; }
+.chart canvas { display: block; }
+.chart.sel { outline: 2px solid var(--accent); }
+.chart .ch-h { display: none; position: absolute; right: -6px; bottom: -6px; width: 11px; height: 11px; background: #fff; border: 2px solid var(--accent); border-radius: 2px; cursor: nwse-resize; }
+.chart.sel .ch-h { display: block; }
+#dvbtn { position: absolute; display: none; width: 17px; background: #f3f3f3; border: 1px solid #999; text-align: center; font-size: 11px; cursor: pointer; z-index: 6; user-select: none; }
+#dvmenu, #fmenu { position: absolute; display: none; background: #fff; border: 1px solid #aaa; box-shadow: 0 4px 14px rgba(0,0,0,.25); z-index: 8; max-height: 320px; overflow-y: auto; font-size: 13px; }
+#dvmenu div { padding: 4px 12px; cursor: pointer; white-space: nowrap; }
+#dvmenu div:hover { background: var(--accent-light); }
+#fmenu { width: 220px; padding: 4px 0; }
+#fmenu .fm-act { padding: 5px 12px; cursor: pointer; } #fmenu .fm-act:hover { background: var(--accent-light); }
+#fmenu hr { border: none; border-top: 1px solid #ddd; margin: 4px 0; }
+#fmenu label { display: flex; gap: 6px; padding: 2px 12px; align-items: center; }
+#fmenu .fm-list { max-height: 190px; overflow-y: auto; border-top: 1px solid #eee; border-bottom: 1px solid #eee; margin: 2px 0; }
+#fmenu .fm-btns { display: flex; gap: 8px; justify-content: flex-end; padding: 6px 10px 2px; }
+#fmenu .fm-btns button { padding: 3px 14px; border: 1px solid #bbb; background: #fff; border-radius: 3px; }
+#fmenu .fm-btns button[data-a=ok] { background: var(--accent); color: #fff; border-color: var(--accent); }
+#cmtip { position: absolute; display: none; background: #ffffe1; border: 1px solid #888; padding: 5px 8px; max-width: 240px; white-space: pre-wrap; z-index: 9; font-size: 12px; pointer-events: none; }
+#editor { position: absolute; display: none; resize: none; border: 2px solid var(--accent); outline: none; padding: 0 3px; margin: 0; overflow: hidden; line-height: 1.25; font-family: Calibri, sans-serif; font-size: 15px; background: #fff; z-index: 5; white-space: pre; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+#sheettabs { display: flex; align-items: stretch; background: #f0f0f0; border-top: 1px solid var(--line); height: 28px; flex: none; }
+#tablist { display: flex; overflow-x: auto; }
+.stab { padding: 0 16px; display: flex; align-items: center; border-right: 1px solid #d0d0d0; cursor: pointer; white-space: nowrap; background: #e6e6e6; }
+.stab:hover { background: #ddd; }
+.stab.active { background: #fff; color: var(--accent-dark); font-weight: 600; box-shadow: inset 0 -3px 0 var(--accent); }
+#addsheet { border: none; background: transparent; font-size: 18px; width: 32px; color: #555; }
+#addsheet:hover { background: #ddd; }
+.ribbon label { display: inline-flex; gap: 6px; align-items: center; }

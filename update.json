@@ -1,0 +1,6 @@
+{
+  "repo": "lightiningblast/lumen-office",
+  "comment": "GitHub repository (owner/name) whose newest Release the updater installs.",
+  "check_every_hours": 24,
+  "allow_prerelease": false
+}

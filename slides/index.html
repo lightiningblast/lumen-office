@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen Slides</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#b7472a">
+<link rel="icon" href="../icons/slides-192.png">
+<link rel="stylesheet" href="../shared/common.css">
+<link rel="stylesheet" href="slides.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">P</div>
+  <input id="title" class="doc-title" value="Presentation1" spellcheck="false">
+  <span class="dirty" id="dirty"></span>
+  <div class="spacer"></div>
+  <a class="home" href="../index.html">&#8962; Lumen Office</a>
+  <button class="btn-text" id="btn-new">New</button>
+  <button class="btn-text" id="btn-open">Open</button>
+  <button class="btn-text" id="btn-save">Save</button>
+  <button class="btn-text" id="btn-saveas">Save as&hellip;</button>
+  <button class="btn-text" id="btn-show">&#9654; Slide show</button>
+</header>
+<nav class="tabs">
+  <button class="tab active" data-tab="home">Home</button>
+  <button class="tab" data-tab="insert">Insert</button>
+  <button class="tab" data-tab="trans">Transitions</button>
+  <button class="tab" data-tab="design">Design</button>
+  <button class="tab" data-tab="view">View</button>
+</nav>
+<section class="ribbon">
+  <div class="panel active" data-panel="home">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="b-undo" title="Undo">&#8630;</button><button class="btn" id="b-redo" title="Redo">&#8631;</button>
+    </div></div><div class="label">Undo</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="new-layout" style="width:150px"><option value="">New slide&hellip;</option><option value="titleContent">Title and Content</option><option value="title">Title Slide</option><option value="titleOnly">Title Only</option><option value="blank">Blank</option></select>
+    </div><div class="row">
+      <button class="btn" id="s-dup">Duplicate</button><button class="btn" id="s-del">Delete</button><button class="btn" id="s-hide" title="Hide this slide in the slide show">Hide</button>
+    </div></div><div class="label">Slides</div></div>
+    <div class="group"><div class="rows">
+      <div class="row">
+        <select id="f-name" style="width:120px"><option>Calibri</option><option>Calibri Light</option><option>Arial</option><option>Times New Roman</option><option>Georgia</option><option>Verdana</option><option>Segoe UI</option><option>Courier New</option><option>Impact</option></select>
+        <select id="f-size" style="width:56px"><option>10</option><option>12</option><option>14</option><option>16</option><option selected>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>36</option><option>44</option><option>54</option><option>66</option><option>80</option></select>
+      </div>
+      <div class="row">
+        <button class="btn" data-cmd="bold"><b>B</b></button><button class="btn" data-cmd="italic"><i>I</i></button><button class="btn" data-cmd="underline"><u>U</u></button><button class="btn" data-cmd="strikeThrough"><s>ab</s></button>
+        <span class="colorpick" title="Text colour"><button class="btn" id="apply-tc"><span>A</span><i class="sw" id="sw-tc" style="background:#c00000"></i></button><input type="color" id="tc" value="#c00000"></span>
+      </div>
+    </div><div class="label">Font</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" data-cmd="justifyLeft"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/></svg></button>
+      <button class="btn" data-cmd="justifyCenter"><svg viewBox="0 0 16 16"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/></svg></button>
+      <button class="btn" data-cmd="justifyRight"><svg viewBox="0 0 16 16"><path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/></svg></button>
+      <button class="btn" id="b-bullets" title="Bullets"><svg viewBox="0 0 16 16"><path d="M6 3.5h8M6 8h8M6 12.5h8"/><circle cx="2.5" cy="3.5" r=".8"/><circle cx="2.5" cy="8" r=".8"/><circle cx="2.5" cy="12.5" r=".8"/></svg></button>
+      <button class="btn" id="b-numbers" title="Numbering">1.</button>
+    </div><div class="row">
+      <button class="btn" data-va="t" title="Top">&#8613;</button><button class="btn" data-va="ctr" title="Middle">&#8597;</button><button class="btn" data-va="b" title="Bottom">&#8615;</button>
+    </div></div><div class="label">Paragraph</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <span class="colorpick" title="Shape fill"><button class="btn" id="apply-fill"><span>&#9638;</span><i class="sw" id="sw-fill" style="background:#4472c4"></i></button><input type="color" id="fill" value="#4472c4"></span>
+      <button class="btn" id="b-nofill">No fill</button>
+    </div><div class="row">
+      <span class="colorpick" title="Outline"><button class="btn" id="apply-line"><span>&#9633;</span><i class="sw" id="sw-line" style="background:#2f528f"></i></button><input type="color" id="line" value="#2f528f"></span>
+      <select id="line-w" style="width:70px"><option value="0">None</option><option value="1">1 px</option><option value="2" selected>2 px</option><option value="4">4 px</option><option value="6">6 px</option></select>
+    </div></div><div class="label">Shape</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="b-front">Bring to front</button><button class="btn" id="b-back">Send to back</button>
+    </div><div class="row">
+      <button class="btn" id="b-dupshape">Duplicate</button><button class="btn" id="b-delshape">Delete shape</button>
+      <select id="b-align" style="width:84px"><option value="">Align&hellip;</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option><option value="top">Top</option><option value="middle">Middle</option><option value="bottom">Bottom</option><option value="disth">Distribute horizontally</option><option value="distv">Distribute vertically</option></select>
+      <button class="btn" id="b-group" title="Group selected shapes (Ctrl+G)">Group</button><button class="btn" id="b-ungroup" title="Ungroup (Ctrl+Shift+G)">Ungroup</button><button class="btn" id="b-selall" title="Select all shapes (Ctrl+A)">Select all</button>
+    </div></div><div class="label">Arrange</div></div>
+  </div>
+  <div class="panel" data-panel="insert">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="i-text"><span class="ic">&#9636;</span>Text box</button>
+      <button class="btn big" id="i-image"><span class="ic">&#128444;</span>Picture</button>
+      <button class="btn big" id="i-table"><span class="ic">&#9638;</span>Table</button>
+      <button class="btn big" id="i-chart"><span class="ic">&#128202;</span>Chart</button>
+      <button class="btn big" id="i-video"><span class="ic">&#127916;</span>Video</button>
+      <button class="btn big" id="i-audio"><span class="ic">&#128266;</span>Audio</button>
+      <button class="btn big" id="i-hf" title="Slide numbers and footer text"><span class="ic">#</span>Header &amp; Footer</button>
+    </div></div><div class="label">Insert</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="i-shape" style="width:150px"><option value="">Shapes&hellip;</option><option value="rect">Rectangle</option><option value="roundRect">Rounded rectangle</option><option value="ellipse">Ellipse</option><option value="triangle">Triangle</option><option value="rtTriangle">Right triangle</option><option value="diamond">Diamond</option><option value="pentagon">Pentagon</option><option value="hexagon">Hexagon</option><option value="parallelogram">Parallelogram</option><option value="trapezoid">Trapezoid</option><option value="rightArrow">Right arrow</option><option value="leftArrow">Left arrow</option><option value="upArrow">Up arrow</option><option value="downArrow">Down arrow</option><option value="star5">Star</option><option value="line">Line</option><option value="arrow">Arrow line</option></select>
+    </div><div class="row">
+      <select id="i-diagram" style="width:150px"><option value="">Diagram&hellip;</option><option value="process">Process</option><option value="chevron">Chevron process</option><option value="cycle">Cycle</option><option value="hierarchy">Hierarchy</option><option value="pyramid">Pyramid</option><option value="list">Numbered list</option></select>
+    </div></div><div class="label">Shapes &amp; diagrams</div></div>
+  </div>
+  <div class="panel" data-panel="trans">
+    <div class="group"><div class="rows"><div class="row">
+      <select id="tr-type" style="width:120px"><option value="none">None</option><option value="fade">Fade</option><option value="push">Push</option><option value="wipe">Wipe</option><option value="split">Split</option><option value="cover">Cover</option><option value="pull">Uncover</option><option value="zoom">Zoom</option></select>
+      <select id="tr-speed" style="width:80px"><option value="slow">Slow</option><option value="med" selected>Medium</option><option value="fast">Fast</option></select>
+    </div><div class="row">
+      <label>Advance after <input type="number" id="tr-adv" min="0" step="1" style="width:56px"> s</label>
+      <button class="btn" id="tr-all">Apply to all slides</button>
+    </div></div><div class="label">Slide transition</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="an-type" style="width:150px"><option value="none">No animation</option><option value="appear">Appear</option><option value="fade">Fade in</option><option value="wipe">Wipe in</option><option value="fly">Fly in</option><option value="exit-appear">Exit: Disappear</option><option value="exit-fade">Exit: Fade out</option><option value="exit-wipe">Exit: Wipe out</option><option value="emph-spin">Emphasis: Spin</option><option value="emph-grow">Emphasis: Grow</option><option value="path-right">Motion path: Right</option><option value="path-left">Motion path: Left</option><option value="path-up">Motion path: Up</option><option value="path-down">Motion path: Down</option><option value="exit-fly">Exit: Fly out</option></select>
+    </div><div class="row"><span style="color:#666;font-size:12px">Select a shape first. Plays on click in the slide show.</span></div></div><div class="label">Entrance animation</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="tr-preview"><span class="ic">&#9654;</span>Preview</button>
+    </div></div><div class="label">Preview</div></div>
+  </div>
+  <div class="panel" data-panel="design">
+    <div class="group"><div class="rows"><div class="row">
+      <select id="th-pick" style="width:150px"><option value="">Theme&hellip;</option><option value="office">Office</option><option value="slate">Slate</option><option value="midnight">Midnight</option><option value="forest">Forest</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="charcoal">Charcoal</option><option value="paper">Paper</option></select>
+    </div><div class="row"><span style="color:#666;font-size:12px">Colours and fonts for every slide.</span></div></div><div class="label">Themes</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <span class="colorpick" title="Slide background"><button class="btn" id="apply-bg"><span>&#9638;</span><i class="sw" id="sw-bg" style="background:#ffffff"></i></button><input type="color" id="bg" value="#ffffff"></span>
+      <button class="btn" id="bg-all">Apply to all slides</button>
+    </div><div class="row">
+      <label title="Hide the Slide Master graphics on this slide"><input type="checkbox" id="bg-nomaster"> Hide background graphics</label>
+    </div></div><div class="label">Background</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="slide-size" style="width:150px"><option value="">Slide size&hellip;</option><option value="1280x720">Widescreen 16:9</option><option value="960x720">Standard 4:3</option><option value="1280x800">16:10</option></select>
+    </div></div><div class="label">Size</div></div>
+  </div>
+  <div class="panel" data-panel="view">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="v-show"><span class="ic">&#9654;</span>From start</button>
+      <button class="btn big" id="v-showcur"><span class="ic">&#9655;</span>From current</button>
+      <button class="btn big" id="v-presenter" title="Notes, next slide and timer on this screen; the slides in a separate window for the projector"><span class="ic">&#128421;</span>Presenter view</button>
+      <button class="btn big" id="v-fit"><span class="ic">&#8596;</span>Fit to window</button>
+    </div></div><div class="label">Present</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="v-master" title="Edit the logo, shapes and text that appear behind every slide"><span class="ic">&#9635;</span>Slide Master</button>
+    </div></div><div class="label">Master views</div></div>
+  </div>
+</section>
+<div id="workspace">
+  <aside id="thumbs"></aside>
+  <section id="center"><div id="masterbar" hidden><b>Slide Master</b>&nbsp; Shapes, pictures and text you add here appear behind every slide. <button class="btn" id="m-close">Close Master View</button></div><main id="stage"><div id="stagebox"><div id="slideview"></div><div id="selbox" hidden><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i><i data-h="rot" class="rot"></i></div></div></main>
+  <div id="notesbar"><label for="notes">Speaker notes</label><textarea id="notes" placeholder="Click to add notes"></textarea></div></section>
+</div>
+<footer class="statusbar"><span id="st-slide">Slide 1 of 1</span><span id="st-sel" style="margin-left:16px"></span><span class="spacer"></span><span id="st-zoom">100%</span></footer>
+<div id="show" hidden><div id="showslide"></div><div id="shownotes" hidden></div>
+  <div id="pv" hidden>
+    <div id="pv-main"><div id="pv-cur"></div></div>
+    <div id="pv-side">
+      <div class="pv-bar"><span id="pv-timer">0:00</span><button id="pv-reset" title="Restart the timer">&#8635;</button><span class="pv-sp"></span><span id="pv-clock"></span></div>
+      <div class="pv-lbl">Next slide</div><div id="pv-next"></div>
+      <div class="pv-lbl">Notes</div><div id="pv-notes"></div>
+      <div class="pv-bar"><button id="pv-prev">&#9664; Back</button><span id="pv-count"></span><button id="pv-nextb">Next &#9654;</button></div>
+      <div class="pv-bar"><button id="pv-aud" title="Open the slides in their own window for the projector or second screen">Audience window</button><span class="pv-sp"></span><button id="pv-end">End show</button></div>
+    </div>
+  </div>
+</div>
+<script src="../shared/zip.js"></script>
+<script src="../shared/common.js"></script>
+<script src="../cells/chart.js"></script>
+<script src="pptx.js"></script>
+<script src="slides.js"></script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen Write</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b579a">
+<link rel="icon" href="../icons/write-192.png">
+<link rel="stylesheet" href="../shared/common.css">
+<link rel="stylesheet" href="write.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">W</div>
+  <input id="title" class="doc-title" value="Document1" spellcheck="false" title="Document name">
+  <span class="dirty" id="dirty"></span>
+  <div class="spacer"></div>
+  <a class="home" href="../index.html">&#8962; Lumen Office</a>
+  <button class="btn-text" id="btn-new">New</button>
+  <button class="btn-text" id="btn-open">Open</button>
+  <button class="btn-text" id="btn-save">Save</button>
+  <button class="btn-text" id="btn-saveas">Save as&hellip;</button>
+  <button class="btn-text" id="btn-print">Print / PDF</button>
+</header>
+<nav class="tabs">
+  <button class="tab active" data-tab="home">Home</button>
+  <button class="tab" data-tab="insert">Insert</button>
+  <button class="tab" data-tab="layout">Layout</button>
+  <button class="tab" data-tab="refs">References</button>
+  <button class="tab" data-tab="mail">Mailings</button>
+  <button class="tab" data-tab="review">Review</button>
+  <button class="tab" data-tab="view">View</button>
+  <button class="tab" data-tab="table" hidden>Table</button>
+</nav>
+<section class="ribbon">
+  <!-- HOME -->
+  <div class="panel active" data-panel="home">
+    <div class="group">
+      <div class="rows"><div class="row">
+        <button class="btn" data-cmd="undo" title="Undo (Ctrl+Z)">&#8630;</button>
+        <button class="btn" data-cmd="redo" title="Redo (Ctrl+Y)">&#8631;</button>
+      </div><div class="row">
+        <button class="btn" data-cmd="cut" title="Cut">&#9986;</button>
+        <button class="btn" data-cmd="copy" title="Copy">&#10064;</button>
+      </div></div>
+      <div class="label">Clipboard</div>
+    </div>
+    <div class="group">
+      <div class="rows">
+        <div class="row">
+          <select id="font-name" title="Font" style="width:130px">
+            <option>Calibri</option><option>Calibri Light</option><option>Arial</option><option>Times New Roman</option><option>Cambria</option><option>Georgia</option><option>Verdana</option><option>Tahoma</option><option>Trebuchet MS</option><option>Segoe UI</option><option>Courier New</option><option>Consolas</option><option>Comic Sans MS</option><option>Impact</option>
+          </select>
+          <select id="font-size" title="Font size" style="width:56px">
+            <option>8</option><option>9</option><option>10</option><option>10.5</option><option selected>11</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>36</option><option>48</option><option>72</option>
+          </select>
+          <button class="btn" id="size-up" title="Grow font">A&#9652;</button>
+          <button class="btn" id="size-down" title="Shrink font">A&#9662;</button>
+        </div>
+        <div class="row">
+          <button class="btn" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="btn" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+          <button class="btn" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+          <button class="btn" data-cmd="strikeThrough" title="Strikethrough"><s>ab</s></button>
+          <button class="btn" data-cmd="subscript" title="Subscript">x<sub>2</sub></button>
+          <button class="btn" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+          <span class="colorpick" title="Text colour"><button class="btn" id="apply-fcolor"><span>A</span><i class="sw" id="sw-fcolor" style="background:#c00000"></i></button><input type="color" id="fcolor" value="#c00000"></span>
+          <span class="colorpick" title="Highlight"><button class="btn" id="apply-hcolor"><span>&#9998;</span><i class="sw" id="sw-hcolor" style="background:#ffff00"></i></button><input type="color" id="hcolor" value="#ffff00"></span>
+          <button class="btn" data-cmd="removeFormat" title="Clear formatting">&#10006;</button>
+        </div>
+      </div>
+      <div class="label">Font</div>
+    </div>
+    <div class="group">
+      <div class="rows">
+        <div class="row">
+          <button class="btn" data-cmd="insertUnorderedList" title="Bullets"><svg viewBox="0 0 16 16"><path d="M6 3.5h8M6 8h8M6 12.5h8"/><circle cx="2.5" cy="3.5" r=".8"/><circle cx="2.5" cy="8" r=".8"/><circle cx="2.5" cy="12.5" r=".8"/></svg></button>
+          <button class="btn" data-cmd="insertOrderedList" title="Numbering"><svg viewBox="0 0 16 16"><path d="M6 3.5h8M6 8h8M6 12.5h8"/><path d="M2 2.5v2M2 7h1.5l-1.5 2h1.5M2 11.5h1.5v1l-1 .2 1 .2v1H2" stroke-width="1"/></svg></button>
+          <button class="btn" id="outdent" title="Decrease indent"><svg viewBox="0 0 16 16"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M5 6l-3 2 3 2"/></svg></button>
+          <button class="btn" id="indent" title="Increase indent"><svg viewBox="0 0 16 16"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M2 6l3 2-3 2"/></svg></button>
+        </div>
+        <div class="row">
+          <button class="btn" data-cmd="justifyLeft" title="Align left (Ctrl+L)"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/></svg></button>
+          <button class="btn" data-cmd="justifyCenter" title="Center (Ctrl+E)"><svg viewBox="0 0 16 16"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/></svg></button>
+          <button class="btn" data-cmd="justifyRight" title="Align right (Ctrl+R)"><svg viewBox="0 0 16 16"><path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/></svg></button>
+          <button class="btn" data-cmd="justifyFull" title="Justify (Ctrl+J)"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h12M2 10h12M2 13.5h12"/></svg></button>
+          <select id="line-spacing" title="Line spacing" style="width:62px">
+            <option value="">Spacing</option><option value="1">1.0</option><option value="1.15">1.15</option><option value="1.5">1.5</option><option value="2">2.0</option><option value="2.5">2.5</option><option value="3">3.0</option>
+          </select>
+        </div>
+      </div>
+      <div class="label">Paragraph</div>
+    </div>
+    <div class="group">
+      <div class="rows"><div class="row">
+        <select id="block-style" title="Style" style="width:120px">
+          <option value="normal">Normal</option><option value="title">Title</option><option value="subtitle">Subtitle</option>
+          <option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="h4">Heading 4</option><option value="h5">Heading 5</option><option value="h6">Heading 6</option><option value="quote">Quote</option>
+        </select>
+      </div><div class="row">
+        <button class="btn" id="style-mod" title="Change the font, size and colour of a style everywhere it is used">Modify style&hellip;</button>
+      </div></div>
+      <div class="label">Styles</div>
+    </div>
+    <div class="group">
+      <div class="rows"><div class="row">
+        <button class="btn big" id="btn-find" title="Find and replace (Ctrl+F)"><span class="ic">&#128269;</span>Find</button>
+        <button class="btn big" id="btn-selectall" title="Select all"><span class="ic">&#9636;</span>Select all</button>
+      </div></div>
+      <div class="label">Editing</div>
+    </div>
+  </div>
+
+  <!-- INSERT -->
+  <div class="panel" data-panel="insert">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-table"><span class="ic">&#9638;</span>Table</button>
+      <button class="btn big" id="ins-image"><span class="ic">&#128444;</span>Picture</button>
+    </div></div><div class="label">Illustrations</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-link"><span class="ic">&#128279;</span>Link</button>
+      <button class="btn big" id="ins-unlink"><span class="ic">&#9940;</span>Remove link</button>
+    </div></div><div class="label">Links</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-toc"><span class="ic">&#9776;</span>Table of contents</button>
+      <button class="btn big" id="upd-toc"><span class="ic">&#8635;</span>Update table</button>
+      <button class="btn big" id="ins-fn"><span class="ic">&sup1;</span>Footnote</button>
+      <button class="btn big" id="ins-cmt"><span class="ic">&#128172;</span>Comment</button>
+    </div></div><div class="label">References</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-header"><span class="ic">&#9650;</span>Header</button>
+      <button class="btn big" id="ins-footer"><span class="ic">&#9660;</span>Footer</button>
+      <button class="btn big" id="ins-pgnum"><span class="ic">#</span>Page number</button>
+      <button class="btn big" id="ins-pgtotal"><span class="ic">&Sigma;</span>Page count</button>
+    </div></div><div class="label">Header &amp; footer</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-hr"><span class="ic">&#8213;</span>Line</button>
+      <button class="btn big" id="ins-pb"><span class="ic">&#8629;</span>Page break</button>
+      <button class="btn big" id="ins-date"><span class="ic">&#128197;</span>Date</button>
+      <button class="btn big" id="ins-symbol"><span class="ic">&Omega;</span>Symbol</button>
+      <button class="btn big" id="ins-tbox"><span class="ic">&#9635;</span>Text box</button>
+      <button class="btn big" id="ins-eq"><span class="ic">&pi;</span>Equation</button>
+    </div></div><div class="label">Text</div></div>
+  </div>
+
+  <!-- REFERENCES -->
+  <div class="panel" data-panel="refs">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-en"><span class="ic">&#8560;</span>Endnote</button>
+    </div></div><div class="label">Notes</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="cite-ins" title="Insert a citation such as (Smith, 2020)"><span class="ic">&#10077;</span>Insert citation</button>
+      <button class="btn big" id="cite-src" title="Add, edit or delete sources"><span class="ic">&#128218;</span>Manage sources</button>
+      <button class="btn big" id="cite-bib" title="Insert or refresh a References list (APA style)"><span class="ic">&#9776;</span>Bibliography</button>
+      <button class="btn" id="cite-upd" title="Refresh citations and the References list">&#8635; Update</button>
+    </div></div><div class="label">Citations &amp; bibliography</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="ins-bm"><span class="ic">&#128278;</span>Bookmark</button>
+      <button class="btn big" id="ins-xref"><span class="ic">&#8599;</span>Cross-reference</button>
+      <button class="btn big" id="ins-caption"><span class="ic">&#9997;</span>Caption</button>
+    </div></div><div class="label">Notes &amp; references</div></div>
+  </div>
+
+  <!-- MAILINGS -->
+  <div class="panel" data-panel="mail">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="mm-list"><span class="ic">&#128101;</span>Recipients</button>
+      <button class="btn big" id="mm-field"><span class="ic">&laquo;&raquo;</span>Insert merge field</button>
+      <button class="btn big" id="mm-preview"><span class="ic">&#128065;</span>Preview results</button>
+      <button class="btn big" id="mm-finish"><span class="ic">&#10003;</span>Finish &amp; merge</button>
+    </div></div><div class="label">Mail merge</div></div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="panel" data-panel="review">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="rv-track"><span class="ic">&#9998;</span>Track changes</button>
+    </div></div><div class="label">Tracking</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="rv-prev"><span class="ic">&#9664;</span>Previous</button>
+      <button class="btn big" id="rv-next"><span class="ic">&#9654;</span>Next</button>
+      <button class="btn big" id="rv-accept"><span class="ic">&#10003;</span>Accept</button>
+      <button class="btn big" id="rv-reject"><span class="ic">&#10005;</span>Reject</button>
+      <button class="btn big" id="rv-accept-all"><span class="ic">&#10004;</span>Accept all</button>
+      <button class="btn big" id="rv-reject-all"><span class="ic">&#10006;</span>Reject all</button>
+    </div></div><div class="label">Changes</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="rv-cmt"><span class="ic">&#128172;</span>New comment</button>
+      <button class="btn big" id="rv-count"><span class="ic">123</span>Word count</button>
+    </div></div><div class="label">Comments &amp; proofing</div></div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="panel" data-panel="layout">
+    <div class="group"><div class="rows"><div class="row">
+      <select id="lay-margins" style="width:120px"><option value="">Margins&hellip;</option><option value="normal">Normal (1")</option><option value="narrow">Narrow (0.5")</option><option value="moderate">Moderate</option><option value="wide">Wide (2")</option></select>
+    </div><div class="row">
+      <select id="lay-size" style="width:120px"><option value="">Page size&hellip;</option><option value="letter">Letter</option><option value="a4">A4</option><option value="legal">Legal</option><option value="a5">A5</option></select>
+    </div></div><div class="label">Page setup</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <select id="lay-cols" style="width:120px"><option value="1">1 column</option><option value="2">2 columns</option><option value="3">3 columns</option></select>
+    </div></div><div class="label">Columns</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="lay-orient"><span class="ic">&#8635;</span>Orientation</button>
+    </div></div><div class="label">Orientation</div></div>
+  </div>
+
+  <!-- VIEW -->
+  <div class="panel" data-panel="view">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn big" id="zoom-out"><span class="ic">&minus;</span>Zoom out</button>
+      <button class="btn big" id="zoom-100"><span class="ic">100</span>100%</button>
+      <button class="btn big" id="zoom-in"><span class="ic">+</span>Zoom in</button>
+      <button class="btn big" id="zoom-fit"><span class="ic">&#8596;</span>Page width</button>
+    </div></div><div class="label">Zoom</div></div>
+  </div>
+
+  <!-- TABLE (contextual) -->
+  <div class="panel" data-panel="table">
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="t-row-above">&uarr; Row above</button>
+      <button class="btn" id="t-row-below">&darr; Row below</button>
+    </div><div class="row">
+      <button class="btn" id="t-col-left">&larr; Column left</button>
+      <button class="btn" id="t-col-right">&rarr; Column right</button>
+    </div></div><div class="label">Insert</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <button class="btn" id="t-del-row">Delete row</button>
+      <button class="btn" id="t-del-col">Delete column</button>
+    </div><div class="row">
+      <button class="btn" id="t-del-table">Delete table</button>
+      <button class="btn" id="t-borders">Toggle borders</button>
+    </div></div><div class="label">Delete</div></div>
+    <div class="group"><div class="rows"><div class="row">
+      <span class="colorpick" title="Cell shading"><button class="btn" id="apply-shade"><span>&#9638;</span><i class="sw" id="sw-shade" style="background:#d9e2f3"></i></button><input type="color" id="shade" value="#d9e2f3"></span>
+      <button class="btn" id="t-noshade">No shading</button>
+    </div></div><div class="label">Cell</div></div>
+  </div>
+</section>
+
+<div id="findbar" hidden>
+  <input id="find-q" placeholder="Find" spellcheck="false">
+  <input id="find-r" placeholder="Replace with" spellcheck="false">
+  <label><input type="checkbox" id="find-case"> Match case</label>
+  <button class="btn-text" id="find-prev">&#9650;</button>
+  <button class="btn-text" id="find-next">&#9660; Next</button>
+  <button class="btn-text" id="find-rep">Replace</button>
+  <button class="btn-text" id="find-all">Replace all</button>
+  <span id="find-msg"></span>
+  <button class="btn-text" id="find-close" style="margin-left:auto">&#10005;</button>
+</div>
+
+<main id="stage">
+  <div id="zoomer">
+    <div id="pagewrap">
+      <div id="sheet"><div class="hf" id="hdr" contenteditable="true" data-ph="Header"></div><div id="doc" contenteditable="true" spellcheck="true"><p><br></p></div><div id="fnlist" style="display:none"></div><div id="enlist" style="display:none"></div><div class="hf" id="ftr" contenteditable="true" data-ph="Footer"></div></div>
+    </div>
+  </div>
+  <div id="imgframe" hidden><i id="imgh"></i></div>
+</main>
+
+<footer class="statusbar">
+  <span id="st-page">Page 1 of 1</span>
+  <span id="st-words">0 words</span>
+  <span id="st-chars">0 characters</span>
+  <span id="st-track"></span>
+  <span class="spacer"></span>
+  <span id="st-zoom">100%</span>
+  <input type="range" id="zoom" min="40" max="250" value="100">
+</footer>
+<style id="print-style"></style>
+
+<script src="../shared/zip.js"></script>
+<script src="../shared/common.js"></script>
+<script src="docx.js"></script>
+<script src="write.js"></script>
+</body>
+</html>

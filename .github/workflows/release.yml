@@ -1,0 +1,30 @@
+# Publishes a GitHub Release whenever you push a tag like v1.1.0.
+# The release carries LumenOffice-<version>.zip and its .sha256 file, which installed copies of Lumen Office download.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow (for the icons)
+        run: python -m pip install pillow==11.0.0
+      - name: Build the release package
+        run: python tools/make_release.py --expect "${{ github.ref_name }}"
+      - name: Create the GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/LumenOffice-*.zip dist/LumenOffice-*.zip.sha256 \
+            --title "Lumen Office ${{ github.ref_name }}" --generate-notes

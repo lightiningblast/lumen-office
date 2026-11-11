@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen Office</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/office-192.png">
+<meta name="theme-color" content="#444a57">
+<style>
+  :root { font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+  body { margin: 0; min-height: 100vh; background: #f3f3f3; color: #222; display: grid; place-items: center; }
+  main { width: min(920px, 92vw); padding: 40px 0; }
+  h1 { font-size: 30px; margin: 0 0 6px; font-weight: 600; }
+  p.sub { color: #666; margin: 0 0 28px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  a.card { background: #fff; border-radius: 12px; padding: 26px 22px; text-decoration: none; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,.12); border-top: 6px solid var(--c); transition: .15s; }
+  a.card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .logo { width: 48px; height: 48px; border-radius: 10px; background: var(--c); color: #fff; font-size: 26px; font-weight: 700; display: grid; place-items: center; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 6px; font-size: 20px; }
+  .card p { margin: 0; color: #555; line-height: 1.45; font-size: 14px; }
+  .card small { display: block; margin-top: 12px; color: var(--c); font-weight: 600; }
+  footer { margin-top: 30px; color: #777; font-size: 13px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lumen Office</h1>
+  <p class="sub">Word processor, spreadsheet and presentation editor. Runs offline in your browser. Opens and saves real Office files.</p>
+  <div class="cards">
+    <a class="card" style="--c:#2b579a" href="write/index.html"><div class="logo">W</div><h2>Lumen Write</h2><p>Documents with styles, lists, tables, pictures and links.</p><small>.docx</small></a>
+    <a class="card" style="--c:#217346" href="cells/index.html"><div class="logo">X</div><h2>Lumen Cells</h2><p>Spreadsheets with formulas, formatting, sorting and multiple sheets.</p><small>.xlsx &nbsp;.csv</small></a>
+    <a class="card" style="--c:#b7472a" href="slides/index.html"><div class="logo">P</div><h2>Lumen Slides</h2><p>Slides with text, shapes, pictures, tables and a full-screen slide show.</p><small>.pptx</small></a>
+  </div>
+  <footer>Tip: drag a .docx, .xlsx or .pptx file onto any app window to open it. Ctrl+S saves, F12 is Save As. Files stay on your computer.<br>
+    To install on Windows, double-click <b>Setup.cmd</b>: it adds Start menu shortcuts, "Open with" for Office files and an uninstaller.<br>
+    <span id="ver">Lumen Office</span> &nbsp;<button id="upd" type="button">Check for updates</button> <span id="updmsg"></span></footer>
+</main>
+<script>
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  fetch('version.json', { cache: 'no-store' }).then(r => r.json()).then(v => { document.getElementById('ver').textContent = 'Lumen Office ' + v.version; }).catch(() => {});
+  document.getElementById('upd').onclick = async () => {
+    const msg = document.getElementById('updmsg');
+    msg.textContent = 'Checking…';
+    try {
+      const r = await fetch('_update/status?refresh=1', { cache: 'no-store' });
+      if (!r.ok || !(r.headers.get('Content-Type') || '').includes('json')) throw new Error('Start Lumen Office from its Start menu shortcut to use updates.');
+      const s = await r.json();
+      if (s.error) throw new Error(s.error);
+      if (!s.available) { msg.textContent = 'You have the newest version (' + s.current + ').'; return; }
+      msg.textContent = 'Version ' + s.latest + ' is available. ';
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Install ' + s.latest;
+      b.onclick = async () => {
+        msg.textContent = 'Downloading and installing…';
+        const a = await fetch('_update/apply', { method: 'POST', headers: { 'X-Lumen': '1' } });
+        const j = await a.json();
+        if (!a.ok) { msg.textContent = 'Update failed: ' + (j.error || a.status); return; }
+        msg.textContent = 'Updated to ' + j.version + '. Restarting…';
+        setTimeout(() => location.reload(), 3000);
+      };
+      msg.appendChild(b);
+    } catch (e) { msg.textContent = e.message || String(e); }
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# test output and build results
+_testout/
+dist/
+__pycache__/
+*.pyc
+*.lumen-tmp
+*.new
+# local tool settings and one-off patch scripts used while building
+.claude/
+tools/patch_*.py
