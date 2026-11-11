@@ -24,7 +24,9 @@ def main():
     for name, icon in EXES.items():
         out = os.path.join(ROOT, name + '.exe')
         cmd = [csc(), '/nologo', '/target:winexe', '/platform:x64', '/optimize+', '/out:' + out,
-               '/win32icon:' + os.path.join(ROOT, 'icons', icon + '.ico')] + ['/reference:' + r for r in refs] + [os.path.join(ROOT, 'host', 'LumenHost.cs')]
+               '/win32icon:' + os.path.join(ROOT, 'icons', icon + '.ico'),
+               '/win32manifest:' + os.path.join(ROOT, 'host', 'app.manifest'),
+               '/define:APP_' + icon.upper()] + ['/reference:' + r for r in refs] + [os.path.join(ROOT, 'host', 'LumenHost.cs')]
         r = subprocess.run(cmd, capture_output=True, text=True)
         if r.returncode:
             print(r.stdout, r.stderr)

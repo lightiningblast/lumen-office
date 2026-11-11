@@ -25,10 +25,20 @@ using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
+// each program carries its own name (shown by Windows in Default apps, Open with and Task Manager)
+#if APP_WRITE
+[assembly: System.Reflection.AssemblyTitle("Lumen Write")]
+#elif APP_CELLS
+[assembly: System.Reflection.AssemblyTitle("Lumen Cells")]
+#elif APP_SLIDES
+[assembly: System.Reflection.AssemblyTitle("Lumen Slides")]
+#else
 [assembly: System.Reflection.AssemblyTitle("Lumen Office")]
+#endif
 [assembly: System.Reflection.AssemblyProduct("Lumen Office")]
 [assembly: System.Reflection.AssemblyCompany("Lumen Office")]
-[assembly: System.Reflection.AssemblyVersion("1.1.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.2.0.0")]
 
 namespace Lumen
 {
@@ -301,6 +311,73 @@ namespace Lumen
         }
     }
 
+    /* ---------------- Windows 11 window chrome ---------------- */
+    static class Win11
+    {
+        [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+        const int DARK = 20, CORNERS = 33, BORDER = 34, CAPTION = 35, TEXT = 36;
+
+        public static bool AppsDark()
+        {
+            try
+            {
+                using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"))
+                { object v = k == null ? null : k.GetValue("AppsUseLightTheme"); return v is int && (int)v == 0; }
+            }
+            catch { return false; }
+        }
+        static int Rgb(Color c) { return c.R | (c.G << 8) | (c.B << 16); }
+        // title bar in the same colour as the Lumen toolbar, so window and app read as one surface
+        public static Color Chrome(bool dark) { return dark ? Color.FromArgb(36, 36, 38) : Color.FromArgb(250, 250, 252); }
+        public static Color Canvas(bool dark) { return dark ? Color.FromArgb(27, 27, 29) : Color.FromArgb(242, 242, 245); }
+        public static void Apply(Form f)
+        {
+            bool dark = AppsDark();
+            try
+            {
+                int on = dark ? 1 : 0; DwmSetWindowAttribute(f.Handle, DARK, ref on, 4);
+                int cap = Rgb(Chrome(dark)); DwmSetWindowAttribute(f.Handle, CAPTION, ref cap, 4);
+                int txt = Rgb(dark ? Color.FromArgb(245, 245, 247) : Color.FromArgb(29, 29, 31)); DwmSetWindowAttribute(f.Handle, TEXT, ref txt, 4);
+                int border = Rgb(dark ? Color.FromArgb(58, 58, 62) : Color.FromArgb(218, 218, 222)); DwmSetWindowAttribute(f.Handle, BORDER, ref border, 4);
+                int round = 2; DwmSetWindowAttribute(f.Handle, CORNERS, ref round, 4);
+            }
+            catch { }  // older Windows: keep the default title bar
+            f.BackColor = Canvas(dark);
+        }
+    }
+
+    /* ---------------- remembers each app window's size and place ---------------- */
+    static class Placement
+    {
+        static string FileOf(string app) { return Path.Combine(Program.Data, "window-" + app + ".txt"); }
+        public static void Restore(Form f, string app)
+        {
+            try
+            {
+                string[] p = File.ReadAllText(FileOf(app)).Split(',');
+                var r = new Rectangle(int.Parse(p[0]), int.Parse(p[1]), int.Parse(p[2]), int.Parse(p[3]));
+                foreach (var s in Screen.AllScreens)  // only if that place is still on a connected screen
+                    if (s.WorkingArea.IntersectsWith(r) && r.Width >= 400 && r.Height >= 300)
+                    {
+                        f.StartPosition = FormStartPosition.Manual; f.Bounds = r;
+                        if (p.Length > 4 && p[4] == "max") f.WindowState = FormWindowState.Maximized;
+                        return;
+                    }
+            }
+            catch { }
+        }
+        public static void Save(Form f, string app)
+        {
+            try
+            {
+                var r = f.WindowState == FormWindowState.Normal ? f.Bounds : f.RestoreBounds;
+                Directory.CreateDirectory(Program.Data);
+                File.WriteAllText(FileOf(app), r.X + "," + r.Y + "," + r.Width + "," + r.Height + "," + (f.WindowState == FormWindowState.Maximized ? "max" : "normal"));
+            }
+            catch { }
+        }
+    }
+
     class HostForm : Form
     {
         readonly WebView2 web = new WebView2();
@@ -318,9 +395,14 @@ namespace Lumen
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             Size = startPage ? new Size(1000, 720) : new Size(1360, 860);
             StartPosition = FormStartPosition.WindowsDefaultLocation;
-            BackColor = Color.FromArgb(243, 243, 243);
+            bool dark = Win11.AppsDark();
+            BackColor = Win11.Canvas(dark);
             web.Dock = DockStyle.Fill;
-            web.DefaultBackgroundColor = Color.FromArgb(243, 243, 243);
+            web.DefaultBackgroundColor = Win11.Canvas(dark);  // no white flash while a dark-mode page loads
+            if (popup == null) Placement.Restore(this, Program.App);
+            HandleCreated += (s, e) => Win11.Apply(this);
+            Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnThemeChanged;
+            FormClosed += (s, e) => Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnThemeChanged;
             Controls.Add(web);
             if (popup != null)
             {
@@ -413,6 +495,13 @@ namespace Lumen
             new HostForm(null, e, false).Show();
         }
 
+        // follow Windows when you switch between light and dark mode
+        void OnThemeChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+        {
+            if (IsDisposed || !IsHandleCreated) return;
+            try { BeginInvoke(new Action(() => { Win11.Apply(this); web.DefaultBackgroundColor = Win11.Canvas(Win11.AppsDark()); Invalidate(); })); } catch { }
+        }
+
         void SetFullScreen(bool on)
         {
             if (on)
@@ -436,6 +525,7 @@ namespace Lumen
                 if (r != DialogResult.Yes) return;
             }
             allowClose = true;
+            if (startUrl != null) Placement.Save(this, Program.App);
             BeginInvoke(new Action(Close));
         }
     }
