@@ -88,3 +88,14 @@
 
 #doc span.cite { background: #eef3fb; border-radius: 2px; padding: 0 1px; }
 @media print { #doc span.cite { background: none; } }
+
+/* ---------- page view: separate sheets with a gap between them ---------- */
+#sheet { z-index: 0; }
+#pagebg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+#pagebg .pg { position: absolute; left: 0; right: 0; background: #fff; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 8px 28px rgba(0,0,0,.09); }
+body.paged #sheet { background: transparent !important; box-shadow: none !important; }
+body.paged #doc div.pb { border-top: none; margin: 0; height: 0; overflow: hidden; }
+body.paged #doc div.pb::after { content: none; }
+#pagebg .hf-copy { position: absolute; pointer-events: none; border: none !important; background: none !important; }
+#pagebg .hf-copy::before { content: none !important; }
+@media print { #pagebg { display: none !important; } }

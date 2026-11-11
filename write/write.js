@@ -213,9 +213,8 @@
     const words = (text.trim().match(/\S+/g) || []).length;
     $('#st-words').textContent = words + (words === 1 ? ' word' : ' words');
     $('#st-chars').textContent = text.replace(/\n/g, '').length + ' characters';
-    const ph = page.h / 15;
-    const pages = Math.max(1, Math.ceil((sheet.offsetHeight - 2) / ph));
-    $('#st-page').textContent = 'Page count: ' + pages;
+    const pages = pageView() ? pageCount : Math.max(1, Math.ceil((sheet.offsetHeight - 2) / (page.h / 15)));
+    $('#st-page').textContent = pages === 1 ? '1 page' : pages + ' pages';
   }
   const STYLE_SEL = { normal: '#doc', title: '#doc p.title', subtitle: '#doc p.subtitle', h1: '#doc h1', h2: '#doc h2', h3: '#doc h3', h4: '#doc h4', h5: '#doc h5', h6: '#doc h6', quote: '#doc p.quote' };
   const STYLE_NAMES = { normal: 'Normal', title: 'Title', subtitle: 'Subtitle', h1: 'Heading 1', h2: 'Heading 2', h3: 'Heading 3', h4: 'Heading 4', h5: 'Heading 5', h6: 'Heading 6', quote: 'Quote' };
@@ -275,6 +274,7 @@
     hdr.style.top = Math.max(8, px(page.t) / 2 - 10) + 'px';
     ftr.style.bottom = Math.max(8, px(page.b) / 2 - 10) + 'px';
     $('#print-style').textContent = `@page{size:${page.w / 1440}in ${page.h / 1440}in;margin:${page.t / 1440}in ${page.r / 1440}in ${page.b / 1440}in ${page.l / 1440}in}`;
+    if (typeof paginate === 'function' && typeof pgStyle !== 'undefined') paginate();
     applyZoom(state.zoom);
   }
   function applyZoom(z) {
@@ -291,6 +291,90 @@
     positionFrame();
   }
   new ResizeObserver(() => { fitZoomer(); scheduleStats(); }).observe(sheet);
+
+  /* ---------------- pages: separate sheets with a gap, text flows onto the next page ---------------- */
+  // The document stays one editable flow. Blocks that would run past a page's bottom margin get extra space
+  // above them (from a generated stylesheet, never saved into the file) so they start on the next page.
+  const PAGE_GAP = 28;
+  var pageCount = 1, pgTimer = 0, pgStyle = null, pgBg = null;
+  function pageView() { return !(page.cols > 1) && (window.LumenSettings ? LumenSettings.get('pageView') !== 'continuous' : true); }
+  function schedulePaginate() { clearTimeout(pgTimer); pgTimer = setTimeout(paginate, 90); }
+  function paginate() {
+    const px = (v) => v / 15;
+    const H = px(page.h), T = px(page.t), B = px(page.b), G = PAGE_GAP;
+    if (!pgStyle) { pgStyle = document.createElement('style'); pgStyle.id = 'pg-flow'; document.head.appendChild(pgStyle); }
+    if (!pgBg) { pgBg = document.createElement('div'); pgBg.id = 'pagebg'; pgBg.setAttribute('aria-hidden', 'true'); sheet.prepend(pgBg); }
+    const on = pageView();
+    document.body.classList.toggle('paged', on);
+    pgStyle.textContent = '';
+    sheet.style.minHeight = H + 'px';
+    if (!on) { pgBg.innerHTML = ''; pageCount = 1; scheduleStats(); return; }
+    const top0 = (k) => k * (H + G), cTop = (k) => top0(k) + T, cBot = (k) => top0(k) + H - B, cH = H - T - B;
+    // units that can move to the next page: top-level blocks, and the items of lists taller than a page
+    const units = [];
+    [...doc.children].forEach((el, i) => {
+      const sel = '#doc > :nth-child(' + (i + 1) + ')';
+      if ((el.tagName === 'UL' || el.tagName === 'OL') && el.offsetHeight > cH) {
+        [...el.children].forEach((li, j) => units.push({ el: li, sel: sel + ' > :nth-child(' + (j + 1) + ')' }));
+      } else units.push({ el, sel });
+    });
+    const rules = [];
+    let p = 0, shift = 0, forceNext = false, prev = null;
+    for (const u of units) {
+      const el = u.el;
+      if (el.classList && el.classList.contains('pb')) { forceNext = true; continue; }
+      if (!el.offsetParent && el.offsetHeight === 0) continue;
+      const top = el.offsetTop + shift, h = el.offsetHeight;
+      let need = 0;
+      while (top >= top0(p + 1)) p++;
+      if (forceNext) { p++; need = cTop(p) - top; forceNext = false; }
+      else if (top < cTop(p)) need = cTop(p) - top;
+      else if (top + h > cBot(p) + 0.5 && h <= cH && top > cTop(p) + 0.5) { p++; need = cTop(p) - top; }
+      if (need > 0.5) {
+        const cs = getComputedStyle(el);
+        const mt = parseFloat(cs.marginTop) || 0;
+        const pmb = prev && prev.parentNode === el.parentNode ? (parseFloat(getComputedStyle(prev).marginBottom) || 0) : 0;
+        rules.push(u.sel + ' { margin-top: ' + (Math.max(mt, pmb) + need).toFixed(1) + 'px !important; }');
+        shift += need;
+      }
+      // a block taller than a page runs on: count the pages it covers
+      const end = top + need + h;
+      while (end > cBot(p) + B + 0.5) p++;
+      prev = el;
+    }
+    if (forceNext) p++;
+    pageCount = p + 1;
+    pgStyle.textContent = rules.length ? '@media screen {\n' + rules.join('\n') + '\n}' : '';
+    sheet.style.minHeight = (pageCount * (H + G) - G) + 'px';
+    drawPages(H, G);
+    scheduleStats();
+  }
+  // white sheets behind the text, plus read-only copies of the header and footer on every page
+  function drawPages(H, G) {
+    const n = pageCount;
+    let html = '';
+    for (let k = 0; k < n; k++) html += '<div class="pg" style="top:' + (k * (H + G)) + 'px;height:' + H + 'px"></div>';
+    pgBg.innerHTML = html;
+    const fill = (box, k) => box.querySelectorAll('.fld').forEach(f => { f.textContent = f.dataset.f === 'NUMPAGES' ? String(n) : String(k + 1); });
+    const hTop = hdr.offsetTop, fFromBottom = H - (parseFloat(ftr.style.bottom) || 0) - ftr.offsetHeight;  // footer offset from its page top
+    fill(hdr, 0); fill(ftr, n - 1);
+    for (let k = 0; k < n; k++) {
+      if (k > 0 && hdr.innerHTML.trim() && hdr.textContent.trim() + hdr.querySelectorAll('.fld').length) {
+        const c = document.createElement('div'); c.className = 'hf hf-copy'; c.innerHTML = hdr.innerHTML;
+        c.style.cssText = 'top:' + (k * (H + G) + hTop) + 'px;left:' + hdr.style.left + ';right:' + hdr.style.right;
+        fill(c, k); pgBg.appendChild(c);
+      }
+      if (k < n - 1 && ftr.innerHTML.trim() && ftr.textContent.trim() + ftr.querySelectorAll('.fld').length) {
+        const c = document.createElement('div'); c.className = 'hf hf-copy'; c.innerHTML = ftr.innerHTML;
+        c.style.cssText = 'top:' + (k * (H + G) + fFromBottom) + 'px;left:' + ftr.style.left + ';right:' + ftr.style.right;
+        fill(c, k); pgBg.appendChild(c);
+      }
+    }
+  }
+  new MutationObserver(schedulePaginate).observe(doc, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['style', 'class', 'src', 'width', 'height'] });
+  new ResizeObserver(schedulePaginate).observe(doc);
+  for (const h of [hdr, ftr]) h.addEventListener('input', schedulePaginate);
+  window.addEventListener('lumen-settings', schedulePaginate);
   $('#zoom').addEventListener('input', e => applyZoom(e.target.value / 100));
   $('#zoom-in').addEventListener('click', () => applyZoom(state.zoom + 0.1));
   $('#zoom-out').addEventListener('click', () => applyZoom(state.zoom - 0.1));
@@ -1315,5 +1399,5 @@
   updateStats();
 
   // test / automation hook
-  window.LumenWrite = { doc, loadFile, save, getPage: () => page, setPage: (p) => { page = p; applyPage(); }, state, setTrack, insertTracked, markDeleted, loadRecipients, mm, setStyleOv, modifyStyleDialog, sources, citeText, bibEntry, updateBibliography, refreshCitations };
+  window.LumenWrite = { doc, loadFile, save, getPage: () => page, setPage: (p) => { page = p; applyPage(); }, state, setTrack, insertTracked, markDeleted, loadRecipients, mm, setStyleOv, modifyStyleDialog, paginate, get pageCount() { return pageCount; }, sources, citeText, bibEntry, updateBibliography, refreshCitations };
 })();

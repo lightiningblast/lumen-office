@@ -37,8 +37,8 @@ using Microsoft.Web.WebView2.WinForms;
 #endif
 [assembly: System.Reflection.AssemblyProduct("Lumen Office")]
 [assembly: System.Reflection.AssemblyCompany("Lumen Office")]
-[assembly: System.Reflection.AssemblyVersion("1.3.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.3.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.4.0.0")]
 
 namespace Lumen
 {
@@ -317,8 +317,24 @@ namespace Lumen
         [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
         const int DARK = 20, CORNERS = 33, BORDER = 34, CAPTION = 35, TEXT = 36;
 
+        // "light" / "dark" when chosen in Lumen's Settings; null follows Windows
+        public static string Override;
+        static Win11()
+        {
+            try { string v = File.ReadAllText(Path.Combine(Program.Data, "theme.txt")).Trim(); if (v == "light" || v == "dark") Override = v; } catch { }
+        }
+        public static void SetTheme(string v)
+        {
+            string o = v == "light" || v == "dark" ? v : null;
+            if (o == Override) return;
+            Override = o;
+            try { Directory.CreateDirectory(Program.Data); File.WriteAllText(Path.Combine(Program.Data, "theme.txt"), o ?? "system"); } catch { }
+            foreach (Form f in Application.OpenForms) { var h = f as HostForm; if (h != null) h.ThemeChanged(); }
+        }
         public static bool AppsDark()
         {
+            if (Override == "dark") return true;
+            if (Override == "light") return false;
             try
             {
                 using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"))
@@ -440,6 +456,15 @@ namespace Lumen
             wv.WindowCloseRequested += (s, e) => { allowClose = true; Close(); };
             wv.ContainsFullScreenElementChanged += (s, e) => SetFullScreen(wv.ContainsFullScreenElement);
             wv.NavigationStarting += OnNavigationStarting;
+            // Settings > Theme: the page tells the program, which recolours its title bar and every open window
+            wv.WebMessageReceived += (s, e) =>
+            {
+                string m = null;
+                try { m = e.TryGetWebMessageAsString(); } catch { }
+                var mt = m == null ? null : Regex.Match(m, "\"type\"\\s*:\\s*\"theme\"[^}]*\"value\"\\s*:\\s*\"(\\w+)\"");
+                if (mt != null && mt.Success) Win11.SetTheme(mt.Groups[1].Value);
+            };
+            ApplyScheme();
             if (pendingPopup != null)
             {
                 pendingPopup.NewWindow = wv;
@@ -449,6 +474,19 @@ namespace Lumen
             }
             else web.Source = new Uri(startUrl);
             // automated check used when building releases: LUMEN_SELFTEST=save adds a line, presses Ctrl+S, closes
+            // LUMEN_SELFTEST=theme: Settings > Dark must recolour this window; then back to Auto. Result in selftest.txt
+            if (Environment.GetEnvironmentVariable("LUMEN_SELFTEST") == "theme")
+            {
+                await Task.Delay(3000);
+                await wv.ExecuteScriptAsync("LumenSettings.set('theme','dark')");
+                await Task.Delay(1500);
+                string r = "override=" + (Win11.Override ?? "none") + " dark=" + Win11.AppsDark() + " back=" + BackColor.Name;
+                await wv.ExecuteScriptAsync("LumenSettings.set('theme','system')");
+                await Task.Delay(1500);
+                r += " | after reset override=" + (Win11.Override ?? "none");
+                try { File.WriteAllText(Path.Combine(Program.Data, "selftest.txt"), r); } catch { }
+                allowClose = true; Close();
+            }
             if (Environment.GetEnvironmentVariable("LUMEN_SELFTEST") == "save")
             {
                 await Task.Delay(4000);
@@ -497,6 +535,24 @@ namespace Lumen
             }
             // the app's own popups (e.g. the slide show audience window) become program windows too
             new HostForm(null, e, false).Show();
+        }
+
+        void ApplyScheme()
+        {
+            try
+            {
+                if (web.CoreWebView2 == null) return;
+                web.CoreWebView2.Profile.PreferredColorScheme = Win11.Override == "dark" ? CoreWebView2PreferredColorScheme.Dark : Win11.Override == "light" ? CoreWebView2PreferredColorScheme.Light : CoreWebView2PreferredColorScheme.Auto;
+            }
+            catch { }
+        }
+        public void ThemeChanged()
+        {
+            if (IsDisposed || !IsHandleCreated) return;
+            Win11.Apply(this); ApplyScheme();
+            web.DefaultBackgroundColor = Win11.Canvas(Win11.AppsDark());
+            // a redraw of the frame makes Windows repaint the title bar colour at once
+            var s = Size; Size = new Size(s.Width + 1, s.Height); Size = s;
         }
 
         // follow Windows when you switch between light and dark mode

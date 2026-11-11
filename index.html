@@ -7,13 +7,15 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/office-192.png">
 <meta name="theme-color" content="#f2f2f5">
+<script>try { var s = JSON.parse(localStorage.getItem("lumen-settings") || "{}"); document.documentElement.dataset.theme = s.theme || "system"; if (window.chrome && chrome.webview) chrome.webview.postMessage(JSON.stringify({ type: "theme", value: s.theme || "system" })); } catch (e) {}</script>
 <style>
   :root {
     --bg: #f2f2f5; --ink: #1d1d1f; --ink-2: #86868b; --hover: rgba(0,0,0,.05); --blue: #0a72e8;
     font-family: 'Segoe UI Variable Text', 'Segoe UI Variable', -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark) { :root { --bg: #1b1b1d; --ink: #f5f5f7; --ink-2: #8e8e93; --hover: rgba(255,255,255,.07); --blue: #3b93ff; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #1b1b1d; --ink: #f5f5f7; --ink-2: #8e8e93; --hover: rgba(255,255,255,.07); --blue: #3b93ff; color-scheme: dark; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1b1b1d; --ink: #f5f5f7; --ink-2: #8e8e93; --hover: rgba(255,255,255,.07); --blue: #3b93ff; color-scheme: dark; } }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body { background: var(--bg); color: var(--ink); display: grid; place-items: center; -webkit-font-smoothing: antialiased; user-select: none; overflow: hidden; }

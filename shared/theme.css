@@ -29,8 +29,29 @@
   font-family: var(--ui-font);
   color-scheme: light;
 }
+:root[data-theme="dark"] {
+    --sys-blue: #3b93ff;
+    --sys-blue-soft: rgba(59, 147, 255, .2);
+    --chrome: rgba(36, 36, 38, .84);
+    --chrome-solid: #242426;
+    --chrome-line: rgba(255, 255, 255, .08);
+    --canvas: #1b1b1d;
+    --ctl: #2f2f32;
+    --ctl-line: rgba(255, 255, 255, .12);
+    --ctl-hover: rgba(255, 255, 255, .07);
+    --ctl-press: rgba(255, 255, 255, .12);
+    --ink: #f5f5f7;
+    --ink-2: #a1a1a6;
+    --ink-3: #7c7c82;
+    --seg: rgba(118, 118, 128, .24);
+    --seg-on: #5b5b5f;
+    --popover: rgba(44, 44, 46, .94);
+    --shadow-page: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 32px rgba(0, 0, 0, .45);
+    --shadow-pop: 0 2px 8px rgba(0, 0, 0, .35), 0 20px 60px rgba(0, 0, 0, .55);
+    color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --sys-blue: #3b93ff;
     --sys-blue-soft: rgba(59, 147, 255, .2);
     --chrome: rgba(36, 36, 38, .84);
@@ -265,3 +286,52 @@ body.tools-hidden .ribbon { display: none; }
 #notesbar label { display: none; }
 #notes { resize: none; min-height: 0; height: 100%; border-color: transparent; background: transparent; }
 #notesbar:focus-within #notes { background: var(--ctl); border-color: var(--ctl-line); }
+
+/* =====================================================================
+   Settings (1.4): panel + options
+   ===================================================================== */
+:root[data-ui="small"] .appbar, :root[data-ui="small"] .ribbon, :root[data-ui="small"] .statusbar, :root[data-ui="small"] #fbar, :root[data-ui="small"] #sheettabs { zoom: .9; }
+:root[data-ui="large"] .appbar, :root[data-ui="large"] .ribbon, :root[data-ui="large"] .statusbar, :root[data-ui="large"] #fbar, :root[data-ui="large"] #sheettabs { zoom: 1.14; }
+:root.no-motion *, :root.no-motion *::before, :root.no-motion *::after { animation: none !important; transition: none !important; }
+body.no-statusbar .statusbar { display: none; }
+body.show-labels .btn.big { font-size: 10.5px; flex-direction: column; height: 46px; min-width: 52px; gap: 2px; color: var(--ink-2); }
+body.show-labels .btn.big svg.sf { width: 20px; height: 20px; }
+.ls-gear.on { background: var(--ctl-press); color: var(--ink); }
+
+#lumen-settings {
+  position: fixed; top: 50px; right: 12px; width: 340px; max-height: calc(100vh - 70px); overflow: auto; z-index: 3000;
+  background: var(--popover); color: var(--ink); border-radius: 14px; border: .5px solid var(--ctl-line); box-shadow: var(--shadow-pop);
+  backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+  animation: pop-in .24s var(--spring); transform-origin: top right; font-size: 13px;
+}
+#lumen-settings[hidden] { display: none; }
+.ls-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 6px 16px; position: sticky; top: 0; background: var(--popover); z-index: 1; }
+.ls-head b { font: 600 15px var(--ui-display); letter-spacing: -.01em; }
+.ls-x { width: 26px; height: 26px; border-radius: 50%; border: none; background: var(--ctl-hover); color: var(--ink-2); font-size: 17px; line-height: 1; cursor: pointer; }
+.ls-x:hover { background: var(--ctl-press); color: var(--ink); }
+.ls-body { padding: 0 10px 12px; }
+.ls-sec { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: 14px 6px 6px; }
+.ls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 8px; border-radius: 9px; min-height: 38px; }
+.ls-row:hover { background: var(--ctl-hover); }
+.ls-l { display: flex; flex-direction: column; gap: 1px; }
+.ls-l small { color: var(--ink-3); font-size: 11px; }
+.ls-seg { display: inline-flex; background: var(--seg); border-radius: 8px; padding: 2px; flex: none; }
+.ls-seg button { border: none; background: transparent; color: var(--ink); font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: background .18s var(--ease), box-shadow .18s var(--ease); }
+.ls-seg button.on { background: var(--seg-on); box-shadow: 0 1px 3px rgba(0,0,0,.14); font-weight: 500; }
+.ls-switch { width: 38px; height: 22px; border-radius: 999px; border: none; background: rgba(120,120,128,.32); position: relative; cursor: pointer; flex: none; transition: background .2s var(--ease); }
+.ls-switch i { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .25s var(--spring); }
+.ls-switch.on { background: var(--sys-blue); }
+.ls-switch.on i { transform: translateX(16px); }
+.ls-dots { display: flex; gap: 7px; flex: none; }
+.ls-dot { width: 18px; height: 18px; border-radius: 50%; border: none; background: var(--c); cursor: pointer; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.15); transition: transform .15s var(--spring); }
+.ls-dot:hover { transform: scale(1.15); }
+.ls-dot.on { box-shadow: 0 0 0 2px var(--popover), 0 0 0 4px var(--c); }
+.ls-in { width: 150px; height: 28px; border-radius: 7px; border: 1px solid var(--ctl-line); background: var(--ctl); color: var(--ink); padding: 0 8px; font: inherit; }
+.ls-in:focus { outline: none; border-color: var(--sys-blue); box-shadow: 0 0 0 3px var(--sys-blue-soft); }
+.ls-btn { border: 1px solid var(--ctl-line); background: var(--ctl); color: var(--ink); border-radius: 7px; padding: 4px 12px; font: inherit; cursor: pointer; }
+.ls-btn:hover { border-color: var(--sys-blue); color: var(--sys-blue); }
+.ls-foot { padding: 10px 8px 0; text-align: center; }
+.ls-link { border: none; background: none; color: var(--sys-blue); font: inherit; font-size: 12px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.ls-link:hover { background: var(--ctl-hover); }
+:root[data-theme="dark"] #pagebg .pg { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 32px rgba(0,0,0,.45); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #pagebg .pg { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 32px rgba(0,0,0,.45); } }

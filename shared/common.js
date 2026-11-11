@@ -274,7 +274,7 @@
   }
 
   function initDesktop() {
-    setTimeout(() => checkUpdates(false), 3000);
+    setTimeout(() => { if (!window.LumenSettings || LumenSettings.get('autoUpdate') !== false) checkUpdates(false); }, 3000);
     // offline cache + installable app (Edge/Chrome: menu > Apps > Install)
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/[?&]nosw\b/.test(location.search)) {
       navigator.serviceWorker.register(new URL('../sw.js', location.href).href, { scope: new URL('../', location.href).href }).catch(() => { });
