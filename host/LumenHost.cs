@@ -37,8 +37,8 @@ using Microsoft.Web.WebView2.WinForms;
 #endif
 [assembly: System.Reflection.AssemblyProduct("Lumen Office")]
 [assembly: System.Reflection.AssemblyCompany("Lumen Office")]
-[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.2.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.3.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.3.0.0")]
 
 namespace Lumen
 {
@@ -393,13 +393,15 @@ namespace Lumen
             startUrl = url; isStartPage = startPage;
             Text = startPage ? "Lumen Office" : "Lumen";
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
-            Size = startPage ? new Size(1000, 720) : new Size(1360, 860);
+            float k = 1f; try { using (var g = CreateGraphics()) k = Math.Max(1f, g.DpiX / 96f); } catch { }  // follow the Windows display scale
+            Size = startPage ? new Size((int)(460 * k), (int)(250 * k)) : new Size((int)Math.Min(1360 * k, Screen.PrimaryScreen.WorkingArea.Width * .9), (int)Math.Min(860 * k, Screen.PrimaryScreen.WorkingArea.Height * .9));
+            if (startPage) { MaximizeBox = false; MinimizeBox = false; FormBorderStyle = FormBorderStyle.FixedSingle; StartPosition = FormStartPosition.CenterScreen; }
             StartPosition = FormStartPosition.WindowsDefaultLocation;
             bool dark = Win11.AppsDark();
             BackColor = Win11.Canvas(dark);
             web.Dock = DockStyle.Fill;
             web.DefaultBackgroundColor = Win11.Canvas(dark);  // no white flash while a dark-mode page loads
-            if (popup == null) Placement.Restore(this, Program.App);
+            if (popup == null && !startPage) Placement.Restore(this, Program.App);
             HandleCreated += (s, e) => Win11.Apply(this);
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnThemeChanged;
             FormClosed += (s, e) => Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnThemeChanged;
@@ -478,6 +480,8 @@ namespace Lumen
                 {
                     e.Cancel = true;
                     try { Process.Start(new ProcessStartInfo(Program.ExeOf(app)) { UseShellExecute = false, WorkingDirectory = Program.Root }); } catch { }
+                    // the chooser is only a chooser: it goes away once an app is picked
+                    allowClose = true; BeginInvoke(new Action(Close));
                 }
             }
         }

@@ -219,3 +219,49 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media print { .appbar, .tabs, .ribbon, .statusbar, #toast { display: none !important; } body { background: #fff; } }
+
+/* =====================================================================
+   Compact layout (1.3): one title row with the tabs in it, one slim tool row.
+   Chrome ~ 44 + 40 + 22 px instead of ~200 px.
+   ===================================================================== */
+.appbar { height: 44px; gap: 4px; }
+.appbar .doc-title { width: 210px; font-size: 13.5px; }
+.appbar .tabs { background: transparent; padding: 0; backdrop-filter: none; -webkit-backdrop-filter: none; flex: none; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.appbar .tabs::-webkit-scrollbar { display: none; }
+.appbar .tabs .tab { padding: 3px 12px; font-size: 12px; white-space: nowrap; }
+.appbar .spacer2 { flex: 1; min-width: 8px; }
+body > nav.tabs { display: none; }
+
+.ribbon { min-height: 0; }
+.panel { padding: 4px 10px; justify-content: safe center; align-items: center; gap: 0; }
+.group { padding: 0 5px; }
+.group + .group::before { top: 7px; bottom: 7px; }
+.group .rows { flex-direction: row; align-items: center; gap: 1px; flex-wrap: nowrap; }
+.group .row { gap: 1px; }
+.btn { height: 30px; min-width: 30px; padding: 0 6px; border-radius: 7px; }
+/* big icon+label buttons become icon-only; the name shows as a tooltip */
+.btn.big { height: 30px; min-width: 32px; padding: 0 6px; font-size: 0; flex-direction: row; gap: 0; border-radius: 7px; color: var(--ink); }
+.btn.big .ic { font-size: 0; }
+.btn.big svg.sf { width: 19px; height: 19px; stroke-width: 1.55; }
+.ribbon select, .ribbon input[type=number], .ribbon input[type=text], .ribbon input:not([type]) { height: 28px; font-size: 12.5px; }
+.ribbon label { font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.statusbar { height: 22px; font-size: 11px; gap: 14px; }
+#stage { padding-top: 18px; }
+#fbar { padding: 4px 10px; }
+#sheettabs { height: 30px; padding: 2px 8px; }
+
+/* click the active tab again to hide the tools: just the page */
+body.tools-hidden .ribbon { display: none; }
+.appbar .tab.active { cursor: pointer; }
+/* groups keep their size; a narrow window scrolls the tool row sideways instead of squeezing it */
+.group, .group .rows, .group .row, .panel > * { flex: 0 0 auto; }
+.panel { overflow-x: auto; overflow-y: hidden; }
+#font-name { width: 118px !important; }
+#font-size { width: 54px !important; }
+#line-spacing { width: 56px !important; }
+/* speaker notes: a slim strip that opens when you click into it */
+#notesbar { height: 44px; padding: 6px 12px; transition: height .25s var(--ease); }
+#notesbar:focus-within { height: 150px; }
+#notesbar label { display: none; }
+#notes { resize: none; min-height: 0; height: 100%; border-color: transparent; background: transparent; }
+#notesbar:focus-within #notes { background: var(--ctl); border-color: var(--ctl-line); }

@@ -151,7 +151,4 @@ Say "Lumen Office $ver is installed."
 Say 'Start it from the Start menu (Lumen Office folder). To open Office files with it: right-click a file > Open with > Lumen Write / Cells / Slides.'
 $repo = (Get-Content -Raw $cfg | ConvertFrom-Json).repo
 if (-not $repo) { Say "Updates: no GitHub repository is set yet. Put it in $cfg as ""owner/name""." }
-if (Ask 'Open Lumen Office now?' $true) {
-  if ($hasExe) { Start-Process (ExeOf '') -WorkingDirectory $InstallDir }
-  else { Start-Process $pyw -ArgumentList "`"$serve`"" -WorkingDirectory $InstallDir }
-}
+Say 'Open Lumen Write, Cells or Slides from the Start menu or the desktop.'

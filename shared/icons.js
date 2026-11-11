@@ -113,7 +113,13 @@
     if (!el || !P[name] || el.dataset.sf) return;
     el.dataset.sf = name;
     const ic = el.querySelector('.ic');
-    if (ic) { ic.innerHTML = svg(name); return; }
+    if (ic) {
+      // the visible label is hidden in the compact toolbar, so it becomes the tooltip
+      const label = [...el.childNodes].filter(n => n !== ic).map(n => n.textContent).join('').trim();
+      if (label) { if (!el.title) el.title = label; el.setAttribute('aria-label', label); }
+      ic.innerHTML = svg(name);
+      return;
+    }
     if (el.classList.contains('btn-text')) {
       // toolbar buttons: icon only, the text becomes the tooltip
       const label = el.textContent.replace(/^[\s▶]+/, '').trim();
@@ -132,7 +138,28 @@
     for (const [sel, name] of BY_ATTR) document.querySelectorAll('button' + sel).forEach(b => apply(b, name));
     const home = document.querySelector('.appbar a.home');
     if (home && !home.dataset.sf) { home.dataset.sf = 'grid'; home.title = 'Lumen Office'; home.setAttribute('aria-label', 'Lumen Office'); home.innerHTML = svg('grid'); home.classList.add('icon-only'); }
+    compact();
     document.documentElement.classList.add('sf-ready');
+  }
+
+  // compact layout: tabs move into the title row; clicking the active tab hides / shows the tools
+  function compact() {
+    const bar = document.querySelector('header.appbar'), tabs = document.querySelector('body > nav.tabs');
+    if (bar && tabs) {
+      const sp = bar.querySelector('.spacer');
+      const sp2 = document.createElement('div'); sp2.className = 'spacer2';
+      if (sp) { sp.after(tabs); tabs.after(sp2); sp.className = 'spacer2'; } else bar.appendChild(tabs);
+    }
+    let hidden = false;
+    try { hidden = localStorage.getItem('lumen-tools-hidden') === '1'; } catch (e) { }
+    document.body.classList.toggle('tools-hidden', hidden);
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('mousedown', () => {
+      const wasActive = t.classList.contains('active');
+      // clicking the shown tab hides the tools; clicking any tab while hidden shows them again
+      const hide = wasActive && !document.body.classList.contains('tools-hidden');
+      document.body.classList.toggle('tools-hidden', hide);
+      try { localStorage.setItem('lumen-tools-hidden', hide ? '1' : '0'); } catch (e) { }
+    }));
   }
   window.LumenIcons = { svg, names: () => Object.keys(P), apply };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
