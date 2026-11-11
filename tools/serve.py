@@ -204,7 +204,15 @@ def browser():
     return shutil.which('msedge') or shutil.which('chrome')
 
 
+HOST_EXE = {'write': 'Lumen Write.exe', 'cells': 'Lumen Cells.exe', 'slides': 'Lumen Slides.exe', '': 'Lumen Office.exe'}
+
+
 def open_window(app, token=None):
+    # prefer the Lumen program windows; fall back to an Edge/Chrome app window
+    host = os.path.join(ROOT, HOST_EXE.get(app, 'Lumen Office.exe'))
+    if os.path.isfile(host):
+        subprocess.Popen([host] + (['--token', token] if token else []), close_fds=True, cwd=ROOT)
+        return
     url = f'http://127.0.0.1:{PORT}/' + APPS.get(app, 'index.html') + (f'?open={token}' if token else '')
     exe = browser()
     if exe:
@@ -256,6 +264,14 @@ def main():
         return
 
     os.makedirs(DATA, exist_ok=True)
+    # leftovers from an update that replaced programs while they were running
+    for dp, _, fns in os.walk(ROOT):
+        for fn in fns:
+            if '.lumen-old-' in fn:
+                try:
+                    os.remove(os.path.join(dp, fn))
+                except OSError:
+                    pass
     with open(SECRET_FILE, 'w', encoding='ascii') as f:
         f.write(SECRET)
     SERVER = http.server.ThreadingHTTPServer(('127.0.0.1', PORT), Handler)

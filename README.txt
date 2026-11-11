@@ -5,7 +5,8 @@ Opens and saves .docx, .xlsx, .csv and .pptx files. Runs on your own computer.
 INSTALL (Windows 10 / 11)
   1. Unzip LumenOffice-<version>.zip anywhere.
   2. Double-click Setup.cmd. No administrator rights are needed.
-     - Needs Python 3.8 or newer. If it is missing, Setup offers to install it with winget.
+     - Lumen Write, Lumen Cells, Lumen Slides and Lumen Office are real Windows programs (own window, icon and
+       taskbar entry). They use the Microsoft Edge WebView2 runtime that comes with Windows 10/11. No Python needed.
      - Installs to %LOCALAPPDATA%\Programs\Lumen Office
      - Adds a "Lumen Office" folder to the Start menu, and optional desktop shortcuts.
      - Adds "Open with > Lumen Write / Cells / Slides" for .docx .xlsx .csv .pptx files.

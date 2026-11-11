@@ -5,6 +5,11 @@ __pycache__/
 *.pyc
 *.lumen-tmp
 *.new
+# built by tools/build_host.py (the release workflow builds them too)
+/Lumen*.exe
+/Microsoft.Web.WebView2.*.dll
+/WebView2Loader.dll
+*.lumen-old-*
 # local tool settings and one-off patch scripts used while building
 .claude/
 tools/patch_*.py

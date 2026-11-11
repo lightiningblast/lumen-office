@@ -17,7 +17,7 @@ CACHE = os.path.join(DATA, 'update-status.json')
 API = os.environ.get('LUMEN_UPDATE_API', 'https://api.github.com').rstrip('/')
 UA = 'LumenOffice-Updater'
 # files the user owns; an update never overwrites them
-KEEP = {'update.json'}
+KEEP = {'update.json', 'python.path'}
 
 
 def _json(path, default=None):
@@ -137,7 +137,13 @@ def apply(root=ROOT, status=None, log=print):
                     shutil.copy2(dst, os.path.join(backup, relf))
                 tmp = dst + '.new'
                 shutil.copy2(os.path.join(dirpath, fn), tmp)
-                os.replace(tmp, dst)
+                try:
+                    os.replace(tmp, dst)
+                except PermissionError:
+                    # a running program (Lumen Write.exe, a WebView2 DLL...) cannot be overwritten, but Windows
+                    # lets it be renamed: move it aside (deleted on the next start) and put the new file in place
+                    os.replace(dst, dst + '.lumen-old-' + str(int(time.time())))
+                    os.replace(tmp, dst)
     finally:
         shutil.rmtree(stage, ignore_errors=True)
     try:

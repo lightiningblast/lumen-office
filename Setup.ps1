@@ -27,7 +27,9 @@ if ($py) {
   $okVer = & ($py -replace 'pythonw\.exe$', 'python.exe') -c "import sys; print(int(sys.version_info >= (3, 8)))" 2>$null
   if ($okVer -ne '1') { $py = $null }
 }
-if (-not $py -and -not $FilesOnly) {
+# the Lumen programs (Lumen Write.exe ...) need no Python; only the older browser-based launcher does
+$needPy = -not (Test-Path (Join-Path $src 'Lumen Write.exe'))
+if (-not $py -and -not $FilesOnly -and $needPy) {
   Say 'Python 3.8 or newer is needed and was not found.'
   if ((Get-Command winget -ErrorAction SilentlyContinue) -and (Ask 'Install Python 3.12 now with winget (Microsoft package manager)?' $true)) {
     winget install --id Python.Python.3.12 --scope user --accept-package-agreements --accept-source-agreements
@@ -38,7 +40,15 @@ if (-not $py -and -not $FilesOnly) {
 }
 $pyw = if ($py) { $py -replace 'python\.exe$', 'pythonw.exe' -replace 'py\.exe$', 'pyw.exe' } else { 'pythonw.exe' }
 
-# ---- stop a running Lumen server so its files can be replaced ----
+# ---- close running Lumen windows and the server so their files can be replaced ----
+$running = Get-Process -Name 'Lumen Write', 'Lumen Cells', 'Lumen Slides', 'Lumen Office' -ErrorAction SilentlyContinue |
+  Where-Object { $_.Path -and $_.Path -like "$InstallDir*" }
+if ($running) {
+  if (-not $Quiet) { Read-Host 'Lumen windows are open. Save your work in them, then press Enter to close them and continue' | Out-Null }
+  $running | ForEach-Object { $_.CloseMainWindow() | Out-Null }
+  Start-Sleep -Seconds 2
+  $running | Where-Object { -not $_.HasExited } | Stop-Process -Force -ErrorAction SilentlyContinue
+}
 Get-CimInstance Win32_Process -Filter "Name like 'python%'" -ErrorAction SilentlyContinue |
   Where-Object { $_.CommandLine -and $_.CommandLine -like '*serve.py*' -and $_.CommandLine -like "*$InstallDir*" } |
   ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
@@ -48,7 +58,8 @@ $keep = $null
 $cfg = Join-Path $InstallDir 'update.json'
 if (Test-Path $cfg) { $keep = Get-Content -Raw $cfg }
 New-Item -ItemType Directory -Force $InstallDir | Out-Null
-$items = 'shared', 'write', 'cells', 'slides', 'icons', 'index.html', 'sw.js', 'manifest.webmanifest', 'version.json', 'update.json', 'Setup.cmd', 'Setup.ps1', 'Uninstall.ps1', 'README.txt', 'Lumen Office.cmd'
+$items = 'shared', 'write', 'cells', 'slides', 'icons', 'host', 'index.html', 'sw.js', 'manifest.webmanifest', 'version.json', 'update.json', 'Setup.cmd', 'Setup.ps1', 'Uninstall.ps1', 'README.txt', 'Lumen Office.cmd',
+  'Lumen Write.exe', 'Lumen Cells.exe', 'Lumen Slides.exe', 'Lumen Office.exe', 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll'
 if ((Resolve-Path $src).Path.TrimEnd('\') -ne [IO.Path]::GetFullPath($InstallDir).TrimEnd('\')) {
   foreach ($i in $items) { $p = Join-Path $src $i; if (Test-Path $p) { Copy-Item $p -Destination $InstallDir -Recurse -Force } }
   New-Item -ItemType Directory -Force (Join-Path $InstallDir 'tools') | Out-Null
@@ -61,8 +72,12 @@ if ($keep) {
     [IO.File]::WriteAllText($cfg, ($new | ConvertTo-Json), (New-Object Text.UTF8Encoding $false))   # UTF-8 without BOM
   }
 }
+if ($py) { [IO.File]::WriteAllText((Join-Path $InstallDir 'python.path'), ($py -replace 'python\.exe$', 'pythonw.exe' -replace 'py\.exe$', 'pyw.exe'), (New-Object Text.UTF8Encoding $false)) }
 Say 'Files copied.'
 if ($FilesOnly) { Say 'Files-only mode: done.'; exit 0 }
+# the Lumen program windows (own taskbar/dock entry); older packages without them fall back to the Python launcher
+$hasExe = Test-Path (Join-Path $InstallDir 'Lumen Write.exe')
+function ExeOf($app) { $n = @{ write = 'Lumen Write'; cells = 'Lumen Cells'; slides = 'Lumen Slides'; '' = 'Lumen Office' }[$app]; Join-Path $InstallDir "$n.exe" }
 
 # ---- shortcuts ----
 $shell = New-Object -ComObject WScript.Shell
@@ -77,14 +92,21 @@ function Link($dir, $name, $target, $arguments, $icon) {
 $apps = @(@{ N = 'Lumen Write'; A = 'write' }, @{ N = 'Lumen Cells'; A = 'cells' }, @{ N = 'Lumen Slides'; A = 'slides' }, @{ N = 'Lumen Office'; A = '' })
 foreach ($a in $apps) {
   $ico = Join-Path $InstallDir ("icons\" + $(if ($a.A) { $a.A } else { 'office' }) + '.ico')
-  Link $menu $a.N $pyw ("`"$serve`" " + $a.A).Trim() $ico
+  if ($hasExe) { Link $menu $a.N (ExeOf $a.A) '' (ExeOf $a.A) }
+  else { Link $menu $a.N $pyw ("`"$serve`" " + $a.A).Trim() $ico }
 }
-$pyc = $pyw -replace 'pythonw\.exe$', 'python.exe' -replace 'pyw\.exe$', 'py.exe'
-Link $menu 'Check for updates' $pyc ("`"" + (Join-Path $InstallDir 'tools\updater.py') + "`"") (Join-Path $InstallDir 'icons\office.ico')
+if ($hasExe) { Link $menu 'Check for updates' (ExeOf '') '--updates' (ExeOf '') }
+else {
+  $pyc = $pyw -replace 'pythonw\.exe$', 'python.exe' -replace 'pyw\.exe$', 'py.exe'
+  Link $menu 'Check for updates' $pyc ("`"" + (Join-Path $InstallDir 'tools\updater.py') + "`"") (Join-Path $InstallDir 'icons\office.ico')
+}
 Link $menu 'Uninstall Lumen Office' 'powershell.exe' ("-NoProfile -ExecutionPolicy Bypass -File `"" + (Join-Path $InstallDir 'Uninstall.ps1') + "`"") (Join-Path $InstallDir 'icons\office.ico')
 if (-not $NoDesktop -and (Ask 'Add Lumen Write, Cells and Slides to the desktop?' $true)) {
   $desk = [Environment]::GetFolderPath('Desktop')
-  foreach ($a in $apps[0..2]) { Link $desk $a.N $pyw "`"$serve`" $($a.A)" (Join-Path $InstallDir "icons\$($a.A).ico") }
+  foreach ($a in $apps[0..2]) {
+    if ($hasExe) { Link $desk $a.N (ExeOf $a.A) '' (ExeOf $a.A) }
+    else { Link $desk $a.N $pyw "`"$serve`" $($a.A)" (Join-Path $InstallDir "icons\$($a.A).ico") }
+  }
 }
 
 # ---- "Open with" for Office files (adds a choice, does not change your default app) ----
@@ -99,7 +121,11 @@ foreach ($t in $types) {
   New-Item -Force $k | Out-Null; Set-Item $k $t.Name
   New-Item -Force "$k\DefaultIcon" | Out-Null; Set-Item "$k\DefaultIcon" ((Join-Path $InstallDir "icons\$($t.App).ico") + ',0')
   New-Item -Force "$k\shell\open\command" | Out-Null
-  Set-Item "$k\shell\open\command" "`"$pyw`" `"$serve`" $($t.App) `"%1`""
+  if ($hasExe) { Set-Item "$k\shell\open\command" "`"$(ExeOf $t.App)`" `"%1`"" }
+  else { Set-Item "$k\shell\open\command" "`"$pyw`" `"$serve`" $($t.App) `"%1`"" }
+  # lets Windows show the right name and icon in "Open with"
+  $ap = "$classes\Applications\$(Split-Path -Leaf (ExeOf $t.App))"
+  if ($hasExe) { New-Item -Force "$ap\shell\open\command" | Out-Null; Set-Item "$ap\shell\open\command" "`"$(ExeOf $t.App)`" `"%1`""; New-ItemProperty -Force -Path $ap -Name FriendlyAppName -PropertyType String -Value ($t.Name -replace ' (document|workbook|presentation)$', '') | Out-Null }
   foreach ($e in $t.Ext) {
     New-Item -Force "$classes\$e\OpenWithProgids" | Out-Null
     New-ItemProperty -Force -Path "$classes\$e\OpenWithProgids" -Name $t.Id -PropertyType String -Value '' | Out-Null
@@ -125,4 +151,7 @@ Say "Lumen Office $ver is installed."
 Say 'Start it from the Start menu (Lumen Office folder). To open Office files with it: right-click a file > Open with > Lumen Write / Cells / Slides.'
 $repo = (Get-Content -Raw $cfg | ConvertFrom-Json).repo
 if (-not $repo) { Say "Updates: no GitHub repository is set yet. Put it in $cfg as ""owner/name""." }
-if (Ask 'Open Lumen Office now?' $true) { Start-Process $pyw -ArgumentList "`"$serve`"" -WorkingDirectory $InstallDir }
+if (Ask 'Open Lumen Office now?' $true) {
+  if ($hasExe) { Start-Process (ExeOf '') -WorkingDirectory $InstallDir }
+  else { Start-Process $pyw -ArgumentList "`"$serve`"" -WorkingDirectory $InstallDir }
+}

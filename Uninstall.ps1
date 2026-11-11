@@ -9,7 +9,10 @@ if (-not $Quiet) {
   $a = Read-Host "Remove Lumen Office from $dir ? Your documents are not touched. [y/N]"
   if ($a -notmatch '^(y|yes)$') { exit 0 }
 }
-# stop the local server
+# close Lumen windows, then stop the local server
+Get-Process -Name 'Lumen Write', 'Lumen Cells', 'Lumen Slides', 'Lumen Office' -ErrorAction SilentlyContinue |
+  Where-Object { $_.Path -and $_.Path -like "$dir*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+foreach ($n in 'Lumen Write.exe', 'Lumen Cells.exe', 'Lumen Slides.exe') { Remove-Item -Recurse -Force "HKCU:\Software\Classes\Applications\$n" -ErrorAction SilentlyContinue }
 Get-CimInstance Win32_Process -Filter "Name like 'python%'" -ErrorAction SilentlyContinue |
   Where-Object { $_.CommandLine -and $_.CommandLine -like '*serve.py*' -and $_.CommandLine -like "*$dir*" } |
   ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }

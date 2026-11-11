@@ -9,7 +9,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INCLUDE_DIRS = ['shared', 'write', 'cells', 'slides', 'icons']
 INCLUDE_FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'version.json', 'update.json',
                  'Setup.cmd', 'Setup.ps1', 'Uninstall.ps1', 'README.txt', 'Lumen Office.cmd',
-                 'tools/serve.py', 'tools/updater.py']
+                 'tools/serve.py', 'tools/updater.py',
+                 'Lumen Write.exe', 'Lumen Cells.exe', 'Lumen Slides.exe', 'Lumen Office.exe',
+                 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll',
+                 'host/lib/WebView2-LICENSE.txt']
 
 
 def main():
@@ -20,6 +23,8 @@ def main():
             sys.exit(f'version.json says {ver} but the tag says {want}. Update version.json first.')
     # refresh icons, manifests and the offline cache list (its cache name carries the version)
     subprocess.check_call([sys.executable, os.path.join(ROOT, 'tools', 'make_windows.py')])
+    # the Lumen program windows (Lumen Write.exe ...)
+    subprocess.check_call([sys.executable, os.path.join(ROOT, 'tools', 'build_host.py')])
     files = list(INCLUDE_FILES)
     for d in INCLUDE_DIRS:
         for dp, _, fns in os.walk(os.path.join(ROOT, d)):
