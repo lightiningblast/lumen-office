@@ -2227,8 +2227,8 @@
 
   /* ================= files ================= */
   const titleEl = $('#title');
-  function setTitle(n) { titleEl.value = n; document.title = n + ' - Lumen Cells'; }
-  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Lumen Cells'; markDirty(); });
+  function setTitle(n) { titleEl.value = n; document.title = n + ' - Cells'; }
+  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Cells'; markDirty(); });
   function markDirty() { if (!state.dirty) { state.dirty = true; $('#dirty').textContent = '● unsaved'; } }
   function markClean() { state.dirty = false; $('#dirty').textContent = ''; }
   function initSheetState() { for (const s of wb.sheets) { s.sel = { r: 0, c: 0, er: 0, ec: 0 }; } }

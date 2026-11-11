@@ -137,7 +137,7 @@
     for (const id in BY_ID) apply(document.getElementById(id), BY_ID[id]);
     for (const [sel, name] of BY_ATTR) document.querySelectorAll('button' + sel).forEach(b => apply(b, name));
     const home = document.querySelector('.appbar a.home');
-    if (home && !home.dataset.sf) { home.dataset.sf = 'grid'; home.title = 'Lumen Office'; home.setAttribute('aria-label', 'Lumen Office'); home.innerHTML = svg('grid'); home.classList.add('icon-only'); }
+    if (home && !home.dataset.sf) { home.dataset.sf = 'grid'; home.title = 'Office Apps'; home.setAttribute('aria-label', 'Office Apps'); home.innerHTML = svg('grid'); home.classList.add('icon-only'); }
     compact();
     document.documentElement.classList.add('sf-ready');
   }

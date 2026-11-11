@@ -4,7 +4,9 @@ import glob, os, shutil, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WIN = os.environ.get('WINDIR', r'C:\Windows')
-EXES = {'Lumen Write': 'write', 'Lumen Cells': 'cells', 'Lumen Slides': 'slides', 'Lumen Office': 'office'}
+EXES = {'Write': 'write', 'Cells': 'cells', 'Slides': 'slides', 'Office Apps': 'office'}
+# copies under the old names: an existing install that updates itself starts one of these once, which moves it to the new names
+LEGACY = {'Lumen Write': 'Write', 'Lumen Cells': 'Cells', 'Lumen Slides': 'Slides', 'Lumen Office': 'Office Apps'}
 DLLS = ['Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll']
 
 
@@ -34,6 +36,8 @@ def main():
         print('built', os.path.basename(out), os.path.getsize(out), 'bytes')
     for d in DLLS:
         shutil.copy2(os.path.join(lib, d), os.path.join(ROOT, d))
+    for old, new in LEGACY.items():
+        shutil.copy2(os.path.join(ROOT, new + '.exe'), os.path.join(ROOT, old + '.exe'))
 
 
 if __name__ == '__main__':

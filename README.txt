@@ -1,18 +1,18 @@
-LUMEN OFFICE
-Word processor (Lumen Write), spreadsheet (Lumen Cells) and presentation editor (Lumen Slides).
+OFFICE APPS (WRITE, CELLS, SLIDES)
+Word processor (Write), spreadsheet (Cells) and presentation editor (Slides).
 Opens and saves .docx, .xlsx, .csv and .pptx files. Runs on your own computer.
 
 INSTALL (Windows 10 / 11)
   1. Unzip LumenOffice-<version>.zip anywhere.
   2. Double-click Setup.cmd. No administrator rights are needed.
-     - Lumen Write, Lumen Cells, Lumen Slides and Lumen Office are real Windows programs (own window, icon and
+     - Write, Cells, Slides and Office Apps are real Windows programs (own window, icon and
        taskbar entry). They use the Microsoft Edge WebView2 runtime that comes with Windows 10/11. No Python needed.
-     - Installs to %LOCALAPPDATA%\Programs\Lumen Office
-     - Adds a "Lumen Office" folder to the Start menu, and optional desktop shortcuts.
-     - Adds "Open with > Lumen Write / Cells / Slides" for .docx .xlsx .csv .pptx files.
-       Your default apps are not changed. To make Lumen the default for a type: right-click a file >
-       Open with > Choose another app > pick Lumen > tick "Always use this app".
-     - Adds Lumen Office to Settings > Apps > Installed apps, where you can uninstall it.
+     - Installs to %LOCALAPPDATA%\Programs\Office Apps
+     - Adds a "Office Apps" folder to the Start menu, and optional desktop shortcuts.
+     - Adds "Open with > Write / Cells / Slides" for .docx .xlsx .csv .pptx files.
+       Your default apps are not changed. To make the default for a type: right-click a file >
+       Open with > Choose another app > pick > tick "Always use this app".
+     - Adds Office Apps to Settings > Apps > Installed apps, where you can uninstall it.
   Windows may show "Windows protected your PC" because the setup is not code-signed: click More info > Run anyway.
 
 OPENING AND SAVING
@@ -22,7 +22,7 @@ UPDATES FROM GITHUB
   The apps check the GitHub repository named in update.json once a day and show a banner when a newer
   release exists. "Update now" downloads it, checks its SHA-256 checksum and installs it. You can also run
   "Check for updates" from the Start menu. A copy of the replaced files is kept in
-  %LOCALAPPDATA%\Lumen Office\previous-version.
+  %LOCALAPPDATA%\Office Apps\previous-version.
 
   Setting it up (once):
     1. Create a repository on github.com, for example yourname/lumen-office (public, so updates can be
@@ -41,5 +41,5 @@ UPDATES FROM GITHUB
        create the release.
 
 UNINSTALL
-  Settings > Apps > Installed apps > Lumen Office > Uninstall, or Start menu > Lumen Office > Uninstall Lumen Office.
+  Settings > Apps > Installed apps > Office Apps > Uninstall, or Start menu > Office Apps > Uninstall Office Apps.
   Your documents are never touched.

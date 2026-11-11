@@ -1,4 +1,4 @@
-/* PPTX (PresentationML) reader / writer for Lumen Slides.
+/* PPTX (PresentationML) reader / writer for Slides.
    Model: pres = { w, h (px, 1px = 9525 EMU), media: {id: dataUrl}, slides: [ { bg, layout, shapes: [...] } ] }
    shape  = { id, type, x, y, w, h, rot, flipH, flipV, fill, line:{color,w}|null, html, valign, ph, fs, fc, ff, img, crop, tail,
               rows:[[{html,fill}]], colW:[], rowH:[] }                                                                  */
@@ -443,8 +443,8 @@
       zw.add(`ppt/slideLayouts/_rels/slideLayout${i + 1}.xml.rels`, XML + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>`);
     });
     const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
-    zw.add('docProps/core.xml', XML + `<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>Lumen Slides</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`);
-    zw.add('docProps/app.xml', XML + '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Lumen Slides</Application></Properties>');
+    zw.add('docProps/core.xml', XML + `<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>Slides</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`);
+    zw.add('docProps/app.xml', XML + '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Slides</Application></Properties>');
     pres._imgBase = 0;
     return zw.toBlob(PPTX_MIME);
   }

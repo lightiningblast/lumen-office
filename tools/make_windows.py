@@ -1,18 +1,19 @@
 """Generates the Windows integration files: icons (.png/.ico), web app manifests, the offline cache list."""
-import io, json, os
+import io, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.makedirs(os.path.join(ROOT, 'icons'), exist_ok=True)
 
 APPS = {
-    'write': ('W', '#2b579a', 'Lumen Write', 'Word processor for .docx documents',
+    'write': ('W', '#2b579a', 'Write', 'Documents (.docx)',
               {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], 'text/plain': ['.txt']}),
-    'cells': ('X', '#217346', 'Lumen Cells', 'Spreadsheets for .xlsx workbooks',
+    'cells': ('X', '#217346', 'Cells', 'Spreadsheets (.xlsx, .csv)',
               {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'], 'text/csv': ['.csv']}),
-    'slides': ('P', '#b7472a', 'Lumen Slides', 'Presentations for .pptx decks',
+    'slides': ('P', '#b7472a', 'Slides', 'Presentations (.pptx)',
                {'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx']}),
-    'office': ('L', '#444a57', 'Lumen Office', 'Word processor, spreadsheet and presentation editor', None),
+    'office': ('L', '#444a57', 'Office Apps', 'Write, Cells and Slides', None),
 }
 
 
@@ -36,18 +37,16 @@ def icon(letter, color, size):
     return im.resize((size, size), Image.LANCZOS)
 
 
+import make_icons  # noqa: E402
+make_icons.write_icon(); make_icons.cells_icon(); make_icons.slides_icon(); make_icons.office_icon()
 for key, (letter, color, name, desc, accept) in APPS.items():
-    for n in (192, 512):
-        icon(letter, color, n).save(os.path.join(ROOT, 'icons', f'{key}-{n}.png'))
-    icon(letter, color, 256).save(os.path.join(ROOT, 'icons', f'{key}.ico'),
-                                  sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
     up = '' if key == 'office' else '../'
     man = {
         'name': name, 'short_name': name, 'description': desc,
         'start_url': './index.html', 'scope': './', 'id': './index.html',
         'display': 'standalone',
         'background_color': '#f3f3f3', 'theme_color': color,
-        'icons': [{'src': f'{up}icons/{key}-{n}.png', 'sizes': f'{n}x{n}', 'type': 'image/png', 'purpose': 'any'} for n in (192, 512)],
+        'icons': [{'src': f'{up}icons/{key}-{n}.png', 'sizes': f'{n}x{n}', 'type': 'image/png', 'purpose': 'any'} for n in (192, 512, 1024)],
     }
     if accept:
         man['file_handlers'] = [{'action': './index.html', 'accept': accept}]

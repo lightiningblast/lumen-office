@@ -1200,8 +1200,8 @@
 
   /* ---------------- file operations ---------------- */
   const titleEl = $('#title');
-  function setTitle(n) { titleEl.value = n; document.title = n + ' - Lumen Write'; }
-  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Lumen Write'; markDirty(); });
+  function setTitle(n) { titleEl.value = n; document.title = n + ' - Write'; }
+  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Write'; markDirty(); });
 
   async function newDoc() {
     if (state.dirty && !(await Lumen.confirmBox('Discard changes?', 'This document has unsaved changes. Create a new one anyway?', 'Discard'))) return;

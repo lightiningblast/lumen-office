@@ -7,6 +7,10 @@ __pycache__/
 *.new
 # built by tools/build_host.py (the release workflow builds them too)
 /Lumen*.exe
+/Write.exe
+/Cells.exe
+/Slides.exe
+/Office Apps.exe
 /Microsoft.Web.WebView2.*.dll
 /WebView2Loader.dll
 *.lumen-old-*

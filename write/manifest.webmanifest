@@ -1,7 +1,7 @@
 {
-  "name": "Lumen Write",
-  "short_name": "Lumen Write",
-  "description": "Word processor for .docx documents",
+  "name": "Write",
+  "short_name": "Write",
+  "description": "Documents (.docx)",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",
@@ -18,6 +18,12 @@
     {
       "src": "../icons/write-512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/write-1024.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     }

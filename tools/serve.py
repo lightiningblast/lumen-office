@@ -204,7 +204,7 @@ def browser():
     return shutil.which('msedge') or shutil.which('chrome')
 
 
-HOST_EXE = {'write': 'Lumen Write.exe', 'cells': 'Lumen Cells.exe', 'slides': 'Lumen Slides.exe', '': 'Lumen Office.exe'}
+HOST_EXE = {'write': 'Write.exe', 'cells': 'Cells.exe', 'slides': 'Slides.exe', '': 'Office Apps.exe'}
 
 
 def open_window(app, token=None):

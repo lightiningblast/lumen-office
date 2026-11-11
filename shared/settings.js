@@ -93,7 +93,7 @@
     h += row('Your name', '<input class="ls-in" data-k="author" value="' + esc(S.author) + '" placeholder="For comments and changes" spellcheck="false">');
     h += '<div class="ls-sec">Updates</div>';
     h += row('Check automatically', sw('autoUpdate'));
-    h += '<div class="ls-row"><div class="ls-l">Lumen Office ' + esc(ver) + '</div><button type="button" class="ls-btn" data-act="update">Check now</button></div>';
+    h += '<div class="ls-row"><div class="ls-l">Version ' + esc(ver) + '</div><button type="button" class="ls-btn" data-act="update">Check now</button></div>';
     h += '<div class="ls-foot"><button type="button" class="ls-link" data-act="reset">Reset all settings</button></div></div>';
     panel.innerHTML = h;
   }

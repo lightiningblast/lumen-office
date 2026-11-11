@@ -822,7 +822,7 @@
   F.COLUMNS = F.COLUMNS;
   F.SHEET = (a, ctx) => ctx.wb.sheets.indexOf(ctx.sh) + 1;
   F.SHEETS = (a, ctx) => ctx.wb.sheets.length;
-  F.INFO = () => 'Lumen Cells';
+  F.INFO = () => 'Cells';
   F.CELL = (a, ctx) => { const t = s1(a[0], ctx).toLowerCase(); const b = a[1]; if (!isRef(b)) return E.VALUE; if (t === 'address') return '$' + colName(b.c1) + '$' + (b.r1 + 1); if (t === 'row') return b.r1 + 1; if (t === 'col') return b.c1 + 1; if (t === 'contents') return cellValue(ctx.wb, b.sh, b.r1, b.c1); if (t === 'type') { const v = cellValue(ctx.wb, b.sh, b.r1, b.c1); return v === null ? 'b' : typeof v === 'string' ? 'l' : 'v'; } return E.VALUE; };
 
   g.Formula = { spills, Workbook, Sheet, XErr, E, ERR_BY_CODE, MAXR, MAXC, colName, colIndex, cellName, parseCell, parseRange, parse, evalNode, cellValue, rewriteRefs, shiftFormula, splitRef, quoteSheet, fmtPart, isErr, str, functions: () => Object.keys(F).concat(Object.keys(L)).sort(), toArr };

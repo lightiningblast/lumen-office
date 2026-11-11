@@ -1,5 +1,5 @@
 // Offline cache for Lumen Office. Network first (so updates show up), cached copy when the local server is not running.
-const CACHE = 'lumen-office-1.4.0';
+const CACHE = 'lumen-office-2.0.0';
 const ASSETS = [
   "./",
   "index.html",
@@ -29,13 +29,21 @@ const ASSETS = [
   "slides/pptx.js",
   "slides/slides.css",
   "slides/slides.js",
+  "icons/cells-1024.png",
   "icons/cells-192.png",
+  "icons/cells-256.png",
   "icons/cells-512.png",
+  "icons/office-1024.png",
   "icons/office-192.png",
+  "icons/office-256.png",
   "icons/office-512.png",
+  "icons/slides-1024.png",
   "icons/slides-192.png",
+  "icons/slides-256.png",
   "icons/slides-512.png",
+  "icons/write-1024.png",
   "icons/write-192.png",
+  "icons/write-256.png",
   "icons/write-512.png"
 ];
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('lumen-office-') && k !== CACHE).map(k => caches.delete(k))))); });

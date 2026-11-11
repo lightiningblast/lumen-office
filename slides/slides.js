@@ -1127,8 +1127,8 @@
 
   /* ---------------- files ---------------- */
   const titleEl = $('#title');
-  const setTitle = (n) => { titleEl.value = n; document.title = n + ' - Lumen Slides'; };
-  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Lumen Slides'; markDirty(); });
+  const setTitle = (n) => { titleEl.value = n; document.title = n + ' - Slides'; };
+  titleEl.addEventListener('input', () => { document.title = titleEl.value + ' - Slides'; markDirty(); });
   function setPres(p) {
     pres = p; if (!pres.slides.length) pres.slides.push(makeSlide('title'));
     let mx = 0; pres.slides.forEach(sl => sl.shapes.forEach(s => { mx = Math.max(mx, s.id || 0); })); nextId = mx + 1;

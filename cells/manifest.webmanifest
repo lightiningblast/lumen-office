@@ -1,7 +1,7 @@
 {
-  "name": "Lumen Cells",
-  "short_name": "Lumen Cells",
-  "description": "Spreadsheets for .xlsx workbooks",
+  "name": "Cells",
+  "short_name": "Cells",
+  "description": "Spreadsheets (.xlsx, .csv)",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",
@@ -18,6 +18,12 @@
     {
       "src": "../icons/cells-512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/cells-1024.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     }

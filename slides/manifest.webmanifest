@@ -1,7 +1,7 @@
 {
-  "name": "Lumen Slides",
-  "short_name": "Lumen Slides",
-  "description": "Presentations for .pptx decks",
+  "name": "Slides",
+  "short_name": "Slides",
+  "description": "Presentations (.pptx)",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",
@@ -18,6 +18,12 @@
     {
       "src": "../icons/slides-512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/slides-1024.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     }

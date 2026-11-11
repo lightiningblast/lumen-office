@@ -335,3 +335,6 @@ body.show-labels .btn.big svg.sf { width: 20px; height: 20px; }
 .ls-link:hover { background: var(--ctl-hover); }
 :root[data-theme="dark"] #pagebg .pg { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 32px rgba(0,0,0,.45); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #pagebg .pg { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 32px rgba(0,0,0,.45); } }
+
+/* app picture in the title row (2.0) */
+.appbar img.brand { width: 28px; height: 28px; background: none !important; box-shadow: none !important; border-radius: 0; object-fit: contain; margin-left: -2px; }

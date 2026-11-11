@@ -15,6 +15,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -27,18 +28,18 @@ using Microsoft.Web.WebView2.WinForms;
 
 // each program carries its own name (shown by Windows in Default apps, Open with and Task Manager)
 #if APP_WRITE
-[assembly: System.Reflection.AssemblyTitle("Lumen Write")]
+[assembly: System.Reflection.AssemblyTitle("Write")]
 #elif APP_CELLS
-[assembly: System.Reflection.AssemblyTitle("Lumen Cells")]
+[assembly: System.Reflection.AssemblyTitle("Cells")]
 #elif APP_SLIDES
-[assembly: System.Reflection.AssemblyTitle("Lumen Slides")]
+[assembly: System.Reflection.AssemblyTitle("Slides")]
 #else
-[assembly: System.Reflection.AssemblyTitle("Lumen Office")]
+[assembly: System.Reflection.AssemblyTitle("Office Apps")]
 #endif
-[assembly: System.Reflection.AssemblyProduct("Lumen Office")]
-[assembly: System.Reflection.AssemblyCompany("Lumen Office")]
-[assembly: System.Reflection.AssemblyVersion("1.4.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.0.0")]
+[assembly: System.Reflection.AssemblyProduct("Office Apps")]
+[assembly: System.Reflection.AssemblyCompany("Office Apps")]
+[assembly: System.Reflection.AssemblyVersion("2.0.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("2.0.0.0")]
 
 namespace Lumen
 {
@@ -66,7 +67,7 @@ namespace Lumen
 
         public static string ExeOf(string app)
         {
-            string n = app == "write" ? "Lumen Write" : app == "cells" ? "Lumen Cells" : app == "slides" ? "Lumen Slides" : "Lumen Office";
+            string n = app == "write" ? "Write" : app == "cells" ? "Cells" : app == "slides" ? "Slides" : "Office Apps";
             return Path.Combine(Root, n + ".exe");
         }
 
@@ -98,6 +99,7 @@ namespace Lumen
             try { ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; } catch { }  // TLS 1.2 for GitHub
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            if (Migrate.FromOldName(args)) return;
             Updater.CleanupOld();
 
             string file = null; bool updates = false;
@@ -106,7 +108,7 @@ namespace Lumen
             if (file != null)
             {
                 token = Register(file);
-                if (token == null) MessageBox.Show("Lumen Office cannot open this file:\n" + file, "Lumen Office", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (token == null) MessageBox.Show("Lumen Office cannot open this file:\n" + file, "Office Apps", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 string ext = Path.GetExtension(file).ToLowerInvariant();
                 if (App == "office") App = ext == ".xlsx" || ext == ".xlsm" || ext == ".csv" ? "cells" : ext == ".pptx" ? "slides" : "write";
             }
@@ -195,6 +197,97 @@ namespace Lumen
                 e.Response = Respond(200, "OK", File.ReadAllBytes(full), "Content-Type: " + mime + "\r\n");
             }
             catch (Exception ex) { e.Response = Json(500, new Dictionary<string, object> { { "error", ex.Message } }); }
+        }
+    }
+
+    /* ---------------- move an install from the old "Lumen ..." names to Write / Cells / Slides ----------------
+       An install that updates itself still has shortcuts and "Open with" entries pointing at "Lumen Write.exe" etc.
+       The update ships this program under those old names too; started that way once, it rewrites the shortcuts and
+       registry entries to the new programs, then hands over to the new program. */
+    static class Migrate
+    {
+        static readonly string[][] Apps = {
+            new[] { "write", "Write", "Lumen Write", "LumenOffice.Write", "Write document" },
+            new[] { "cells", "Cells", "Lumen Cells", "LumenOffice.Cells", "Cells workbook" },
+            new[] { "slides", "Slides", "Lumen Slides", "LumenOffice.Slides", "Slides presentation" } };
+        static string Marker { get { return Path.Combine(Program.Data, "renamed-2.0.txt"); } }
+        public static bool Done() { return File.Exists(Marker); }
+
+        public static bool FromOldName(string[] args)
+        {
+            if (!Path.GetFileName(Application.ExecutablePath).StartsWith("Lumen ", StringComparison.OrdinalIgnoreCase)) return false;
+            try { Run(); } catch { }
+            string target = Program.ExeOf(Program.App);
+            if (!File.Exists(target)) return false;  // no new program next to this one: just keep running
+            var sb = new StringBuilder();
+            foreach (string a in args) sb.Append(sb.Length > 0 ? " " : "").Append('"').Append(a.Replace("\"", "")).Append('"');
+            try { Process.Start(new ProcessStartInfo(target, sb.ToString()) { UseShellExecute = false, WorkingDirectory = Program.Root }); return true; }
+            catch { return false; }
+        }
+
+        static void Link(string path, string target)
+        {
+            Type t = Type.GetTypeFromProgID("WScript.Shell");
+            object sh = Activator.CreateInstance(t);
+            object l = t.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, sh, new object[] { path });
+            Type lt = l.GetType();
+            lt.InvokeMember("TargetPath", BindingFlags.SetProperty, null, l, new object[] { target });
+            lt.InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, l, new object[] { Program.Root });
+            lt.InvokeMember("IconLocation", BindingFlags.SetProperty, null, l, new object[] { target + ",0" });
+            lt.InvokeMember("Description", BindingFlags.SetProperty, null, l, new object[] { Path.GetFileNameWithoutExtension(path) });
+            lt.InvokeMember("Save", BindingFlags.InvokeMethod, null, l, null);
+        }
+
+        static void Run()
+        {
+            string programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+            string desk = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string oldMenu = Path.Combine(programs, "Lumen Office");
+            bool hadMenu = Directory.Exists(oldMenu);
+            using (var cls = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("Software\\Classes"))
+            {
+                foreach (var a in Apps)
+                {
+                    string exe = Path.Combine(Program.Root, a[1] + ".exe");
+                    if (!File.Exists(exe)) continue;
+                    string cmd = "\"" + exe + "\" \"%1\"";
+                    string ico = Path.Combine(Program.Root, "icons", a[0] + ".ico") + ",0";
+                    using (var k = cls.OpenSubKey(a[3], true))
+                        if (k != null)
+                        {
+                            k.SetValue("", a[4]);
+                            using (var c = k.CreateSubKey("shell\\open\\command")) c.SetValue("", cmd);
+                            using (var i = k.CreateSubKey("DefaultIcon")) i.SetValue("", ico);
+                        }
+                    // Windows remembers a chosen default app by program name: keep the old name's entry, opening the new program
+                    foreach (string name in new[] { a[1] + ".exe", a[2] + ".exe" })
+                    {
+                        bool isOld = name == a[2] + ".exe";
+                        using (var probe = cls.OpenSubKey("Applications\\" + name)) if (isOld && probe == null) continue;
+                        using (var k = cls.CreateSubKey("Applications\\" + name))
+                        {
+                            k.SetValue("FriendlyAppName", a[1]);
+                            using (var c = k.CreateSubKey("shell\\open\\command")) c.SetValue("", cmd);
+                            using (var i = k.CreateSubKey("DefaultIcon")) i.SetValue("", ico);
+                        }
+                    }
+                    if (hadMenu) Link(Path.Combine(programs, a[1] + ".lnk"), exe);
+                    string oldDesk = Path.Combine(desk, a[2] + ".lnk");
+                    if (File.Exists(oldDesk)) { Link(Path.Combine(desk, a[1] + ".lnk"), exe); try { File.Delete(oldDesk); } catch { } }
+                }
+            }
+            try { File.Delete(Path.Combine(desk, "Lumen Office.lnk")); } catch { }
+            if (hadMenu) try { Directory.Delete(oldMenu, true); } catch { }
+            using (var u = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\LumenOffice", true))
+                if (u != null)
+                {
+                    u.SetValue("DisplayName", "Office Apps (Write, Cells, Slides)");
+                    u.SetValue("Publisher", "Office Apps");
+                    u.SetValue("DisplayVersion", Updater.CurrentVersion());
+                    u.SetValue("DisplayIcon", Path.Combine(Program.Root, "icons", "office.ico"));
+                }
+            Directory.CreateDirectory(Program.Data);
+            File.WriteAllText(Marker, DateTime.Now.ToString("s"));
         }
     }
 
@@ -308,6 +401,9 @@ namespace Lumen
         public static void CleanupOld()
         {
             try { foreach (string f in Directory.GetFiles(Program.Root, "*.lumen-old-*", SearchOption.AllDirectories)) { try { File.Delete(f); } catch { } } } catch { }
+            // the programs under their old "Lumen ..." names are only needed to move an install to the new names
+            if (!Path.GetFileName(Application.ExecutablePath).StartsWith("Lumen ", StringComparison.OrdinalIgnoreCase) && Migrate.Done())
+                foreach (string o in new[] { "Lumen Write.exe", "Lumen Cells.exe", "Lumen Slides.exe", "Lumen Office.exe" }) { try { File.Delete(Path.Combine(Program.Root, o)); } catch { } }
         }
     }
 
@@ -407,7 +503,7 @@ namespace Lumen
         public HostForm(string url, CoreWebView2NewWindowRequestedEventArgs popup, bool startPage)
         {
             startUrl = url; isStartPage = startPage;
-            Text = startPage ? "Lumen Office" : "Lumen";
+            Text = startPage ? "Office Apps" : "Write";
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             float k = 1f; try { using (var g = CreateGraphics()) k = Math.Max(1f, g.DpiX / 96f); } catch { }  // follow the Windows display scale
             Size = startPage ? new Size((int)(460 * k), (int)(250 * k)) : new Size((int)Math.Min(1360 * k, Screen.PrimaryScreen.WorkingArea.Width * .9), (int)Math.Min(860 * k, Screen.PrimaryScreen.WorkingArea.Height * .9));
@@ -443,7 +539,7 @@ namespace Lumen
             }
             catch (WebView2RuntimeNotFoundException)
             {
-                MessageBox.Show("The Microsoft Edge WebView2 Runtime is missing. Install it from https://go.microsoft.com/fwlink/p/?LinkId=2124703 and start Lumen again.", "Lumen Office", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("The Microsoft Edge WebView2 Runtime is missing. Install it from https://go.microsoft.com/fwlink/p/?LinkId=2124703 and start Lumen again.", "Office Apps", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 allowClose = true; Close(); return;
             }
             var wv = web.CoreWebView2;
@@ -451,7 +547,7 @@ namespace Lumen
             wv.Settings.IsStatusBarEnabled = false;
             wv.AddWebResourceRequestedFilter(Program.Base + "*", CoreWebView2WebResourceContext.All);
             wv.WebResourceRequested += (s, e) => Program.Serve(e);
-            wv.DocumentTitleChanged += (s, e) => { Text = string.IsNullOrEmpty(wv.DocumentTitle) ? "Lumen" : wv.DocumentTitle; };
+            wv.DocumentTitleChanged += (s, e) => { Text = string.IsNullOrEmpty(wv.DocumentTitle) ? Path.GetFileNameWithoutExtension(Application.ExecutablePath) : wv.DocumentTitle; };
             wv.NewWindowRequested += OnNewWindow;
             wv.WindowCloseRequested += (s, e) => { allowClose = true; Close(); };
             wv.ContainsFullScreenElementChanged += (s, e) => SetFullScreen(wv.ContainsFullScreenElement);
@@ -581,7 +677,7 @@ namespace Lumen
             try { dirty = await web.CoreWebView2.ExecuteScriptAsync("(function(){var d=document.getElementById('dirty');return d?d.textContent.trim():''})()"); } catch { }
             if (dirty != null && dirty.Trim('"', ' ').Length > 0)
             {
-                var r = MessageBox.Show(this, "You have unsaved changes in \"" + Text + "\".\n\nClose without saving?", "Lumen Office", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                var r = MessageBox.Show(this, "You have unsaved changes in \"" + Text + "\".\n\nClose without saving?", "Office Apps", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
                 if (r != DialogResult.Yes) return;
             }
             allowClose = true;

@@ -234,10 +234,10 @@
     let st;
     try {
       const r = await fetch('/_update/status' + (manual ? '?refresh=1' : ''), { cache: 'no-store' });
-      if (!r.ok || !(r.headers.get('Content-Type') || '').includes('json')) { if (manual) toast('Updates work when Lumen Office is started from its Start menu shortcut.', 6000); return null; }
+      if (!r.ok || !(r.headers.get('Content-Type') || '').includes('json')) { if (manual) toast('Updates work in the installed apps.', 6000); return null; }
       st = await r.json();
-    } catch (e) { if (manual) toast('Could not reach the Lumen Office server.'); return null; }
-    if (manual && !st.available) { toast(st.error || ('Lumen Office ' + st.current + ' is the newest version.'), 6000); return st; }
+    } catch (e) { if (manual) toast('Could not reach the update service.'); return null; }
+    if (manual && !st.available) { toast(st.error || ('Version ' + st.current + ' is the newest version.'), 6000); return st; }
     if (!st.available) return st;
     let snooze = null;
     try { snooze = localStorage.getItem('lumen-update-later'); } catch (e) { }
@@ -247,7 +247,7 @@
     bar.id = 'lumen-update';
     bar.style.cssText = 'position:fixed;left:50%;bottom:36px;transform:translateX(-50%);z-index:6000;background:#1f1f1f;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.35);font:14px "Segoe UI",system-ui,sans-serif;display:flex;gap:10px;align-items:center;max-width:92vw';
     bar.innerHTML = '<span></span><button data-u="now">Update now</button><button data-u="notes">What\'s new</button><button data-u="later">Later</button>';
-    bar.firstChild.textContent = 'Lumen Office ' + st.latest + ' is available (you have ' + st.current + ').';
+    bar.firstChild.textContent = 'Version ' + st.latest + ' is available (you have ' + st.current + ').';
     bar.querySelectorAll('button').forEach(b => { b.style.cssText = 'background:#3d3d3d;color:#fff;border:1px solid #666;border-radius:4px;padding:4px 10px;font:inherit;cursor:pointer'; });
     bar.querySelector('[data-u="now"]').style.background = '#2b579a';
     bar.addEventListener('click', async e => {
