@@ -51,7 +51,7 @@ $items = 'shared', 'write', 'cells', 'slides', 'icons', 'host', 'index.html', 's
 if ((Resolve-Path $src).Path.TrimEnd('\') -ne [IO.Path]::GetFullPath($InstallDir).TrimEnd('\')) {
   foreach ($i in $items) { $p = Join-Path $src $i; if (Test-Path $p) { Copy-Item $p -Destination $InstallDir -Recurse -Force } }
   New-Item -ItemType Directory -Force (Join-Path $InstallDir 'tools') | Out-Null
-  foreach ($t in 'serve.py', 'updater.py') { $p = Join-Path $src "tools\$t"; if (Test-Path $p) { Copy-Item $p -Destination (Join-Path $InstallDir 'tools') -Force } }
+  foreach ($t in 'serve.py', 'updater.py', 'fix_openwith.ps1') { $p = Join-Path $src "tools\$t"; if (Test-Path $p) { Copy-Item $p -Destination (Join-Path $InstallDir 'tools') -Force } }
 }
 # the old "Lumen ..." program files are not needed any more
 foreach ($o in 'Lumen Write.exe', 'Lumen Cells.exe', 'Lumen Slides.exe', 'Lumen Office.exe', 'Lumen Office.cmd') { Remove-Item -Force (Join-Path $InstallDir $o) -ErrorAction SilentlyContinue }
@@ -108,6 +108,9 @@ foreach ($a in $APPS) {
     New-ItemProperty -Force -Path "$classes\$e\OpenWithProgids" -Name $a.Id -PropertyType String -Value '' | Out-Null
   }
 }
+
+# one tidy "Open with" entry per app, no stale "Lumen" names or icons
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $InstallDir 'tools\fix_openwith.ps1') -InstallDir $InstallDir
 
 # ---- Installed apps entry ----
 New-Item -Force $un | Out-Null

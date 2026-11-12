@@ -1,5 +1,5 @@
 // Offline cache for Lumen Office. Network first (so updates show up), cached copy when the local server is not running.
-const CACHE = 'lumen-office-2.0.0';
+const CACHE = 'lumen-office-2.0.1';
 const ASSETS = [
   "./",
   "index.html",

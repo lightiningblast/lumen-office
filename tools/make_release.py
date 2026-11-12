@@ -9,7 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INCLUDE_DIRS = ['shared', 'write', 'cells', 'slides', 'icons']
 INCLUDE_FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'version.json', 'update.json',
                  'Setup.cmd', 'Setup.ps1', 'Uninstall.ps1', 'README.txt',
-                 'tools/serve.py', 'tools/updater.py',
+                 'tools/serve.py', 'tools/updater.py', 'tools/fix_openwith.ps1',
                  'Write.exe', 'Cells.exe', 'Slides.exe', 'Office Apps.exe',
                  'Lumen Write.exe', 'Lumen Cells.exe', 'Lumen Slides.exe', 'Lumen Office.exe',
                  'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll',

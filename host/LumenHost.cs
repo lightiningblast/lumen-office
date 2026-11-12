@@ -38,8 +38,8 @@ using Microsoft.Web.WebView2.WinForms;
 #endif
 [assembly: System.Reflection.AssemblyProduct("Office Apps")]
 [assembly: System.Reflection.AssemblyCompany("Office Apps")]
-[assembly: System.Reflection.AssemblyVersion("2.0.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("2.0.0.0")]
+[assembly: System.Reflection.AssemblyVersion("2.0.1.0")]
+[assembly: System.Reflection.AssemblyFileVersion("2.0.1.0")]
 
 namespace Lumen
 {
@@ -286,6 +286,15 @@ namespace Lumen
                     u.SetValue("DisplayVersion", Updater.CurrentVersion());
                     u.SetValue("DisplayIcon", Path.Combine(Program.Root, "icons", "office.ico"));
                 }
+            // one tidy "Open with" entry per app, no stale "Lumen" names or icons (same script Setup runs)
+            string fix = Path.Combine(Program.Root, "tools", "fix_openwith.ps1");
+            if (File.Exists(fix))
+                try
+                {
+                    var p = Process.Start(new ProcessStartInfo("powershell.exe", "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"" + fix + "\" -InstallDir \"" + Program.Root + "\"") { UseShellExecute = false, CreateNoWindow = true });
+                    p.WaitForExit(20000);
+                }
+                catch { }
             Directory.CreateDirectory(Program.Data);
             File.WriteAllText(Marker, DateTime.Now.ToString("s"));
         }
